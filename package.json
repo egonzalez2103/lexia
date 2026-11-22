@@ -1,0 +1,9 @@
+{
+  "name": "juridico",
+  "private": true,
+  "scripts": {
+    "dev:api": "npm --prefix backend run start:dev",
+    "dev:web": "npm --prefix web run dev",
+    "build": "npm --prefix backend run build && npm --prefix web run build"
+  }
+}

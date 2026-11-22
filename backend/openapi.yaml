@@ -1,0 +1,285 @@
+openapi: 3.0.3
+info:
+  title: Jurídico
+  version: 0.1.0
+  description: Contrato de la API local. El dominio del producto sigue abierto.
+paths:
+  /health:
+    get:
+      summary: Salud de la API
+      responses:
+        "200":
+          description: La API responde
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+  /auth/login:
+    post:
+      summary: Entrar con correo y contraseña
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Login"
+            example:
+              email: dueno@juridico.local
+              password: DuenoJuridico2026
+      responses:
+        "200":
+          description: Sesión creada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "401":
+          description: Correo o contraseña incorrectos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/me:
+    get:
+      summary: Cuenta de la sesión
+      security:
+        - bearer: []
+      responses:
+        "200":
+          description: Cuenta actual
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Sesión ausente o vencida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /despachos:
+    get:
+      summary: Lista de despachos del dueño
+      security: [{ bearer: [] }]
+      responses:
+        "200": { description: Despachos con sus usuarios }
+    post:
+      summary: Alta de despacho y de su administrador
+      security: [{ bearer: [] }]
+      responses:
+        "201": { description: Despacho creado }
+  /despachos/{id}:
+    patch:
+      summary: Editar despacho o suspenderlo
+      security: [{ bearer: [] }]
+      responses:
+        "200": { description: Despacho actualizado }
+  /despachos/{id}/miembros:
+    post:
+      summary: Agregar un abogado al despacho
+      security: [{ bearer: [] }]
+      responses:
+        "201": { description: Cuenta creada }
+  /despachos/publico/{slug}:
+    get:
+      summary: Ficha pública de un despacho activo
+      responses:
+        "200": { description: Nombre, contacto y texto }
+  /expedientes:
+    get:
+      summary: Expedientes del despacho de la sesión
+      security: [{ bearer: [] }]
+      responses:
+        "200": { description: Lista }
+    post:
+      summary: Abrir un expediente
+      security: [{ bearer: [] }]
+      responses:
+        "201": { description: Expediente creado }
+  /expedientes/{id}:
+    get:
+      summary: Expediente con términos, promociones y escritos
+      security: [{ bearer: [] }]
+      responses:
+        "200": { description: Detalle }
+  /expedientes/{id}/terminos:
+    post:
+      summary: Agregar un término
+      security: [{ bearer: [] }]
+      responses:
+        "201": { description: Término creado }
+  /expedientes/{id}/promociones:
+    post:
+      summary: Registrar una promoción
+      security: [{ bearer: [] }]
+      responses:
+        "201": { description: Promoción creada }
+  /expedientes/{id}/escritos:
+    post:
+      summary: Guardar un escrito
+      security: [{ bearer: [] }]
+      responses:
+        "201": { description: Escrito creado }
+  /colaboradores:
+    get:
+      summary: Personal de la plataforma, con tipo de catálogo y usuario si tiene acceso
+      security: [{ bearer: [] }]
+      responses:
+        "200": { description: Lista }
+    post:
+      summary: Alta de colaborador. Puede crear su usuario para iniciar sesión
+      security: [{ bearer: [] }]
+      responses:
+        "201": { description: Colaborador creado }
+  /tipos-colaborador:
+    get:
+      summary: Catálogo de tipos de colaborador
+      security: [{ bearer: [] }]
+      responses:
+        "200": { description: Lista }
+    post:
+      summary: Alta de un tipo de colaborador
+      security: [{ bearer: [] }]
+      responses:
+        "201": { description: Tipo creado }
+  /grupos:
+    get:
+      summary: Grupos de Administración → Permisos. Cada grupo se asigna a un tipo de colaborador
+      security: [{ bearer: [] }]
+      responses:
+        "200": { description: Lista }
+    post:
+      summary: Alta de un grupo
+      security: [{ bearer: [] }]
+      responses:
+        "201": { description: Grupo creado }
+  /grupos/aplicaciones:
+    get:
+      summary: Módulos que se pueden asignar a un grupo
+      security: [{ bearer: [] }]
+      responses:
+        "200": { description: Lista }
+  /grupos/{id}/permisos:
+    get:
+      summary: Módulos del grupo, con crear, editar y eliminar
+      security: [{ bearer: [] }]
+      responses:
+        "200": { description: Permisos }
+  /caja:
+    get:
+      summary: Saldos, movimientos y cortes
+      security: [{ bearer: [] }]
+      responses:
+        "200": { description: Caja chica y general }
+  /caja/movimientos:
+    post:
+      summary: Registrar ingreso o egreso
+      security: [{ bearer: [] }]
+      responses:
+        "201": { description: Movimiento creado }
+  /caja/cortes:
+    post:
+      summary: Guardar un corte de caja
+      security: [{ bearer: [] }]
+      responses:
+        "201": { description: Corte creado }
+  /nominas/semana:
+    get:
+      summary: Nómina de una semana, de lunes a domingo, con sueldo, pagos y recibos
+      security: [{ bearer: [] }]
+      responses:
+        "200": { description: Resumen de la semana }
+  /nominas/pagos:
+    post:
+      summary: Registrar un pago de nómina. El efectivo sale de la caja general
+      security: [{ bearer: [] }]
+      responses:
+        "201": { description: Resumen actualizado }
+  /nominas/recibos:
+    post:
+      summary: Guardar el recibo firmado de un colaborador
+      security: [{ bearer: [] }]
+      responses:
+        "201": { description: Resumen actualizado }
+  /nominas/semana/comprobante:
+    post:
+      summary: Guardar el comprobante de transferencias de la semana
+      security: [{ bearer: [] }]
+      responses:
+        "201": { description: Resumen actualizado }
+  /reportes/resumen:
+    get:
+      summary: Corte de despachos, cajas, nómina y expedientes
+      security: [{ bearer: [] }]
+      responses:
+        "200": { description: Resumen }
+  /uploads:
+    post:
+      summary: Subir el archivo de una promoción o un escrito
+      security: [{ bearer: [] }]
+      responses:
+        "201": { description: URL del archivo }
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Login:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 80
+    User:
+      type: object
+      required: [id, name, email, role]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [DUENO, PERSONAL, ADMIN_DESPACHO, MIEMBRO_DESPACHO]
+        despacho_id:
+          type: integer
+          nullable: true
+        despacho_slug:
+          type: string
+          nullable: true
+    Session:
+      type: object
+      required: [access_token, user]
+      properties:
+        access_token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+    Error:
+      type: object
+      properties:
+        message:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        statusCode:
+          type: integer
+        error:
+          type: string
