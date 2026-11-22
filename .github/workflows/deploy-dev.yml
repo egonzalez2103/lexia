@@ -1,0 +1,31 @@
+name: Deploy dev
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Desplegar en el droplet
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          command_timeout: 30m
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd /var/www/lexia
+            git fetch origin dev
+            git checkout -f dev
+            git reset --hard origin/dev
+            npm install --prefix backend
+            npm install --prefix web
+            printf 'NEXT_PUBLIC_API_URL=http://165.22.169.8:3001\n' > web/.env.local
+            npm run build
+            systemctl restart lexia-api lexia-web
+            systemctl is-active lexia-api lexia-web

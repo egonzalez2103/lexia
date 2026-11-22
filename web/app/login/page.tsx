@@ -13,16 +13,16 @@ export default function LoginPage() {
           priority
         />
         <img
-          src="/lexia-logo-blanco.svg"
+          src="/lexia-logo-blanco.png"
           alt="Lexia"
-          width={875}
+          width={662}
           height={251}
           className="absolute bottom-10 left-1/2 w-72 -translate-x-1/2"
         />
       </div>
       <div className="flex min-h-dvh w-full min-w-0 max-w-full items-center justify-center overflow-x-hidden bg-white px-4 py-8 md:min-h-0 md:w-1/2 md:p-8">
         <div className="w-full min-w-0 max-w-md">
-          <img src="/lexia-logo.svg" alt="Lexia" width={400} height={120} className="mx-auto mb-6 w-full max-w-sm" />
+          <img src="/lexia-logo.png" alt="Lexia" width={662} height={251} className="mx-auto mb-6 w-full max-w-sm" />
           <h1 className="mb-2 break-words text-2xl font-bold uppercase text-black sm:text-3xl">
             Bienvenido a Lexia
           </h1>
