@@ -2,15 +2,15 @@ services:
   mysql:
     image: mysql:8.4
     environment:
-      MYSQL_DATABASE: juridico
-      MYSQL_USER: juridico
-      MYSQL_PASSWORD: juridico
+      MYSQL_DATABASE: lexia
+      MYSQL_USER: lexia
+      MYSQL_PASSWORD: lexia
       MYSQL_ROOT_PASSWORD: root
     ports:
       - "3307:3306"
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
-      - juridico_mysql:/var/lib/mysql
+      - lexia_mysql:/var/lib/mysql
 
 volumes:
-  juridico_mysql:
+  lexia_mysql:

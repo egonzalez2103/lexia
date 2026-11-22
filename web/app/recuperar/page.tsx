@@ -5,11 +5,11 @@ export default function RecuperarPage() {
   return (
     <div className="flex w-full max-w-full flex-col overflow-x-hidden md:h-dvh md:flex-row">
       <div className="relative hidden h-full md:block md:w-1/2">
-        <Image src="/juridico-bg.jpg" alt="Pasillo de un tribunal" fill className="object-cover grayscale contrast-125" priority />
+        <Image src="/lexia-bg.jpg" alt="Pasillo de un tribunal" fill className="object-cover grayscale contrast-125" priority />
       </div>
       <div className="flex min-h-dvh w-full min-w-0 max-w-full items-center justify-center overflow-x-hidden bg-white px-4 py-8 md:min-h-0 md:w-1/2 md:p-8">
         <div className="w-full min-w-0 max-w-md">
-          <img src="/juridico-logo.png" alt="Jurídico" width={875} height={251} className="mx-auto mb-6 w-full max-w-sm" />
+          <img src="/lexia-logo.svg" alt="Lexia" width={400} height={120} className="mx-auto mb-6 w-full max-w-sm" />
           <h1 className="mb-2 text-3xl font-bold uppercase text-black">Recuperar contraseña</h1>
           <p className="mb-6 text-sm text-gray-600">
             El correo de recuperación todavía no está conectado. Si no puedes entrar, el dueño de la plataforma restablece el acceso.

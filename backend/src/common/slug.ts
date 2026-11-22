@@ -1,4 +1,4 @@
-const RESERVED = new Set(['www', 'api', 'admin', 'login', 'panel', 'app', 'juridico', 'sitio', 'despacho']);
+const RESERVED = new Set(['www', 'api', 'admin', 'login', 'panel', 'app', 'lexia', 'sitio', 'despacho']);
 
 export function normalizeSlug(value: string) {
   const slug = value

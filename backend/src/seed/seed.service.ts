@@ -16,10 +16,10 @@ export class SeedService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    const email = this.config.get<string>('OWNER_EMAIL', 'dueno@juridico.local').trim().toLowerCase();
+    const email = this.config.get<string>('OWNER_EMAIL', 'dueno@lexia.local').trim().toLowerCase();
     const existing = await this.users.findOne({ where: { email } });
     if (existing) return;
-    const password = this.config.get<string>('OWNER_PASSWORD', 'DuenoJuridico2026');
+    const password = this.config.get<string>('OWNER_PASSWORD', 'cambia-esta-clave');
     await this.users.save(
       this.users.create({
         name: this.config.get<string>('OWNER_NAME', 'Dueño'),

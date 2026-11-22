@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Jurídico
+  title: Lexia
   version: 0.1.0
   description: Contrato de la API local. El dominio del producto sigue abierto.
 paths:
@@ -29,8 +29,8 @@ paths:
             schema:
               $ref: "#/components/schemas/Login"
             example:
-              email: dueno@juridico.local
-              password: DuenoJuridico2026
+              email: dueno@lexia.local
+              password: cambia-esta-clave
       responses:
         "200":
           description: Sesión creada

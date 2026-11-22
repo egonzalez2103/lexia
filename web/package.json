@@ -1,5 +1,5 @@
 {
-  "name": "juridico-web",
+  "name": "lexia-web",
   "private": true,
   "scripts": {
     "dev": "next dev --port 3000",

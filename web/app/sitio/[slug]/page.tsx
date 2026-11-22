@@ -26,7 +26,7 @@ export default async function SitioPage({ params }: { params: Promise<{ slug: st
   return (
     <main className="min-h-dvh bg-white text-black">
       <header className="border-b border-neutral-200 px-6 py-5">
-        <img src="/juridico-logo.png" alt="Jurídico" className="h-10 w-auto" />
+        <img src="/lexia-logo.svg" alt="Lexia" className="h-10 w-auto" />
       </header>
       <article className="mx-auto max-w-3xl px-6 py-16">
         <p className="text-xs uppercase tracking-[0.2em] text-neutral-500">Despacho</p>

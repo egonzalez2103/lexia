@@ -41,7 +41,7 @@ export function DespachoShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-dvh bg-white text-black">
       <header className="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
         <Link href="/despacho">
-          <img src="/juridico-logo.png" alt="Jurídico" className="h-10 w-auto" />
+          <img src="/lexia-logo.svg" alt="Lexia" className="h-10 w-auto" />
         </Link>
         <button
           type="button"

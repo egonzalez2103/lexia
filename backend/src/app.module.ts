@@ -28,7 +28,7 @@ import { UploadsModule } from './uploads/uploads.module';
         port: parseInt(config.get<string>('DB_PORT', '3306'), 10),
         username: config.get<string>('DB_USER', 'root'),
         password: config.get<string>('DB_PASSWORD') ?? '',
-        database: config.get<string>('DB_NAME', 'juridico'),
+        database: config.get<string>('DB_NAME', 'lexia'),
         autoLoadEntities: true,
         synchronize: config.get<string>('DB_SYNC', 'true') !== 'false',
         charset: 'utf8mb4',

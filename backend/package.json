@@ -1,5 +1,5 @@
 {
-  "name": "juridico-api",
+  "name": "lexia-api",
   "private": true,
   "scripts": {
     "build": "nest build",

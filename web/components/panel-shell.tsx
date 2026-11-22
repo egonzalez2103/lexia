@@ -136,7 +136,7 @@ export function PanelShell({ children }: { children: React.ReactNode }) {
           {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
         <Link href="/panel" className="absolute left-1/2 -translate-x-1/2">
-          <img src="/juridico-logo.png" alt="Jurídico" className="h-9 w-auto" />
+          <img src="/lexia-logo.svg" alt="Lexia" className="h-9 w-auto" />
         </Link>
       </header>
 
@@ -146,7 +146,7 @@ export function PanelShell({ children }: { children: React.ReactNode }) {
         <div className="flex h-full min-h-0 flex-col">
           <div className="hidden shrink-0 items-center justify-center px-4 pt-8 xl:flex">
             <Link href="/panel">
-              <img src="/juridico-logo.png" alt="Jurídico" className="h-14 w-auto" />
+              <img src="/lexia-logo.svg" alt="Lexia" className="h-14 w-auto" />
             </Link>
           </div>
           <nav className="min-h-0 flex-1 overflow-y-auto px-4 py-4">

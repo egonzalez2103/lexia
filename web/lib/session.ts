@@ -34,7 +34,7 @@ export type Session = {
   user: SessionUser;
 };
 
-const KEY = 'juridico.session';
+const KEY = 'lexia.session';
 
 export function readSession(): Session | null {
   if (typeof window === 'undefined') return null;

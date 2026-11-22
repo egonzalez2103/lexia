@@ -1,6 +1,4 @@
-# Jurídico
-
-Nombre provisional. El dominio se elige después.
+# Lexia
 
 Panel del dueño y un espacio por despacho.
 
@@ -14,7 +12,7 @@ El dueño, en `/panel`, da de alta despachos, lleva recursos humanos, cajas, nó
 Crea la base si todavía no existe:
 
 ```sql
-CREATE DATABASE IF NOT EXISTS juridico CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS lexia CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 ## Primera vez
@@ -32,7 +30,7 @@ cp web/.env.example web/.env.local
 docker compose up -d
 ```
 
-y en `backend/.env` deja `DB_PORT=3307`, `DB_USER=juridico` y `DB_PASSWORD=juridico`.
+y en `backend/.env` deja `DB_PORT=3307`, `DB_USER=lexia` y `DB_PASSWORD=lexia`.
 
 ## Levantar el local
 
@@ -54,11 +52,4 @@ La API queda en el puerto `3001` y el sitio en el puerto `3000`. Al arrancar, la
 - Ficha pública: http://localhost:3000/sitio/el-enlace
 - Salud: http://localhost:3001/health
 
-## Cuenta local del dueño
-
-| Correo | Contraseña |
-|---|---|
-| `dueno@juridico.local` | `DuenoJuridico2026` |
-
-Esas claves salen de `backend/.env` (`OWNER_EMAIL`, `OWNER_PASSWORD`) y solo sirven en esta máquina. Cámbialas antes de compartir un ambiente.
-# juridico
+La cuenta del dueño sale de `backend/.env` (`OWNER_EMAIL`, `OWNER_PASSWORD`). Cámbiala antes de compartir un ambiente.

@@ -15,7 +15,7 @@ const serif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  title: 'Jurídico',
+  title: 'Lexia',
   description: 'Panel de la plataforma y espacios para despachos de abogados.',
 };
 

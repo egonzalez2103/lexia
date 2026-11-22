@@ -1,5 +1,5 @@
 {
-  "name": "juridico",
+  "name": "lexia",
   "private": true,
   "scripts": {
     "dev:api": "npm --prefix backend run start:dev",
