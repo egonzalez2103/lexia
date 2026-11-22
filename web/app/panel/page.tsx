@@ -49,7 +49,7 @@ export default function PanelPage() {
         {cards.map(([label, value]) => (
           <article key={label} className="border border-neutral-200 p-4">
             <p className="text-xs uppercase tracking-wide text-neutral-500">{label}</p>
-            <p className="mt-2 font-serif text-2xl">{value}</p>
+            <p className="mt-2 text-2xl font-semibold">{value}</p>
           </article>
         ))}
       </div>

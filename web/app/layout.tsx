@@ -1,17 +1,17 @@
 import type { Metadata } from 'next';
-import { Source_Sans_3, Source_Serif_4 } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 
-const sans = Source_Sans_3({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+const sans = localFont({
+  src: './fonts/GeistVF.woff',
   variable: '--font-sans',
+  weight: '100 900',
 });
 
-const serif = Source_Serif_4({
-  subsets: ['latin'],
-  weight: ['500', '600', '700'],
-  variable: '--font-serif',
+const mono = localFont({
+  src: './fonts/GeistMonoVF.woff',
+  variable: '--font-mono',
+  weight: '100 900',
 });
 
 export const metadata: Metadata = {
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body className={`${sans.variable} ${serif.variable} font-sans antialiased`}>{children}</body>
+      <body className={`${sans.variable} ${mono.variable} font-sans antialiased`}>{children}</body>
     </html>
   );
 }

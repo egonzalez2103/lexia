@@ -50,7 +50,7 @@ export class ColaboradoresService {
           tipo_id: tipo.id,
           correo: (dto.acceso?.tiene_acceso ? dto.acceso.correo : dto.correo)?.trim().toLowerCase() || null,
           telefono: telefonoDe(dto.acceso?.telefono),
-          fecha_ingreso: dto.fecha_ingreso.slice(0, 10),
+          fecha_ingreso: hoy(),
           salario_semanal: dto.salario_semanal.toFixed(2),
           tiene_nomina: dto.tiene_nomina ?? true,
           activo: true,
@@ -72,7 +72,6 @@ export class ColaboradoresService {
     if (dto.nombre) row.nombre = mayusculas(dto.nombre) ?? row.nombre;
     if (dto.paterno !== undefined) row.paterno = mayusculas(dto.paterno);
     if (dto.materno !== undefined) row.materno = mayusculas(dto.materno);
-    if (dto.fecha_ingreso) row.fecha_ingreso = dto.fecha_ingreso.slice(0, 10);
     if (dto.salario_semanal !== undefined) row.salario_semanal = dto.salario_semanal.toFixed(2);
     if (dto.tiene_nomina !== undefined) row.tiene_nomina = dto.tiene_nomina;
     if (dto.activo !== undefined) row.activo = dto.activo;
@@ -193,6 +192,13 @@ export class ColaboradoresService {
         : null,
     };
   }
+}
+
+function hoy() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${now.getFullYear()}-${month}-${day}`;
 }
 
 function mayusculas(value?: string | null) {

@@ -246,7 +246,7 @@ export function PanelShell({ children }: { children: React.ReactNode }) {
 export function PageTitle({ title, text }: { title: string; text?: string }) {
   return (
     <header className="mb-6">
-      <h1 className="font-serif text-3xl">{title}</h1>
+      <h1 className="text-3xl font-semibold">{title}</h1>
       {text ? <p className="mt-2 max-w-2xl text-neutral-600">{text}</p> : null}
     </header>
   );

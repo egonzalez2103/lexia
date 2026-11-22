@@ -508,7 +508,7 @@ function PagoDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <form onSubmit={submit} className="w-full max-w-md bg-white p-5">
-        <h2 className="font-serif text-2xl">Registrar pago</h2>
+        <h2 className="text-2xl font-semibold">Registrar pago</h2>
         <p className="mt-1 text-sm text-neutral-600">
           El efectivo sale de la caja general. Transferencia, depósito y tarjeta quedan registrados sin mover la caja.
         </p>
@@ -577,7 +577,7 @@ function ReciboDialog({ fila, onClose, onSave }: { fila: Fila; onClose: () => vo
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <form onSubmit={submit} className="w-full max-w-md bg-white p-5">
-        <h2 className="font-serif text-2xl">Recibo de {fila.colaborador}</h2>
+        <h2 className="text-2xl font-semibold">Recibo de {fila.colaborador}</h2>
         <p className="mt-1 text-sm text-neutral-600">PDF o foto del recibo firmado de esta semana.</p>
         {fila.recibo ? (
           <a className="mt-3 inline-block text-sm underline" href={fileHref(fila.recibo)} target="_blank" rel="noreferrer">

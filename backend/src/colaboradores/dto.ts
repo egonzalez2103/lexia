@@ -1,7 +1,6 @@
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
-  IsDateString,
   IsEmail,
   IsNumber,
   IsOptional,
@@ -63,9 +62,6 @@ export class CreateColaboradorDto {
   @IsEmail()
   correo?: string;
 
-  @IsDateString()
-  fecha_ingreso: string;
-
   @IsNumber()
   @Min(0)
   salario_semanal: number;
@@ -105,10 +101,6 @@ export class UpdateColaboradorDto {
   @IsString()
   @MaxLength(160)
   correo?: string;
-
-  @IsOptional()
-  @IsDateString()
-  fecha_ingreso?: string;
 
   @IsOptional()
   @IsNumber()

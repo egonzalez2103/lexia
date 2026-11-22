@@ -30,7 +30,7 @@ export default async function SitioPage({ params }: { params: Promise<{ slug: st
       </header>
       <article className="mx-auto max-w-3xl px-6 py-16">
         <p className="text-xs uppercase tracking-[0.2em] text-neutral-500">Despacho</p>
-        <h1 className="mt-3 font-serif text-5xl">{despacho.name}</h1>
+        <h1 className="mt-3 text-5xl font-semibold">{despacho.name}</h1>
         {despacho.blurb ? <p className="mt-6 max-w-2xl text-lg leading-8 text-neutral-700">{despacho.blurb}</p> : null}
         <dl className="mt-10 grid gap-4 text-sm">
           {despacho.address ? (

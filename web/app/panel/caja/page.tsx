@@ -55,11 +55,11 @@ export default function CajaPage() {
       <div className="mb-6 grid gap-3 sm:grid-cols-2">
         <article className="border border-neutral-200 p-4">
           <p className="text-xs uppercase tracking-wide text-neutral-500">Caja chica</p>
-          <p className="mt-2 font-serif text-2xl">{pesos.format(data?.saldos.chica ?? 0)}</p>
+          <p className="mt-2 text-2xl font-semibold">{pesos.format(data?.saldos.chica ?? 0)}</p>
         </article>
         <article className="border border-neutral-200 p-4">
           <p className="text-xs uppercase tracking-wide text-neutral-500">Caja general</p>
-          <p className="mt-2 font-serif text-2xl">{pesos.format(data?.saldos.general ?? 0)}</p>
+          <p className="mt-2 text-2xl font-semibold">{pesos.format(data?.saldos.general ?? 0)}</p>
         </article>
       </div>
       <div className="mb-8 grid gap-4 lg:grid-cols-2">

@@ -33,7 +33,6 @@ type Formulario = {
   tipo_id: string;
   correo: string;
   telefono: string;
-  fecha_ingreso: string;
   salario_semanal: string;
   tiene_nomina: boolean;
   activo: boolean;
@@ -52,7 +51,6 @@ const vacio: Formulario = {
   tipo_id: '',
   correo: '',
   telefono: '',
-  fecha_ingreso: '',
   salario_semanal: '',
   tiene_nomina: true,
   activo: true,
@@ -85,7 +83,6 @@ function aFormulario(row: Colaborador, catalogo: Tipo[]): Formulario {
     tipo_id: row.tipo_id ? String(row.tipo_id) : '',
     correo: row.correo ?? row.usuario?.email ?? '',
     telefono: row.telefono ?? '',
-    fecha_ingreso: String(row.fecha_ingreso).slice(0, 10),
     salario_semanal: String(row.salario_semanal),
     tiene_nomina: row.tiene_nomina !== false,
     activo: row.activo,
@@ -122,7 +119,6 @@ function cuerpo(form: Formulario, incluirActivo: boolean) {
     materno: form.materno || undefined,
     tipo_id: Number(form.tipo_id),
     correo: form.correo || undefined,
-    fecha_ingreso: form.fecha_ingreso,
     salario_semanal: Number(form.salario_semanal),
     tiene_nomina: form.tiene_nomina,
     ...(incluirActivo ? { activo: form.activo } : {}),
@@ -388,10 +384,6 @@ function Campos({
       <label className="grid gap-1 text-sm">
         Apellido Materno
         <input className={inputClass} placeholder="Apellido materno" value={form.materno} onChange={(event) => set('materno', mayusculas(event.target.value))} />
-      </label>
-      <label className="grid gap-1 text-sm">
-        Fecha de ingreso
-        <input required type="date" className={inputClass} value={form.fecha_ingreso} onChange={(event) => set('fecha_ingreso', event.target.value)} />
       </label>
       <label className="grid gap-1 text-sm">
         Sueldo Semanal

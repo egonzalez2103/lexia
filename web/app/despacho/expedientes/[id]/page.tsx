@@ -121,7 +121,7 @@ export default function ExpedientePage() {
         </Link>
       </p>
       <header className="mb-6">
-        <h1 className="font-serif text-3xl">{row?.titulo ?? 'Expediente'}</h1>
+        <h1 className="text-3xl font-semibold">{row?.titulo ?? 'Expediente'}</h1>
         {row ? (
           <p className="mt-2 text-neutral-600">
             {row.cliente}
