@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard, Roles, RolesGuard } from '../common/auth';
+import { AuthUser, CurrentUser, JwtAuthGuard, Roles, RolesGuard } from '../common/auth';
 import { UserRole } from '../common/enums';
 import { AppPermiso } from '../common/permiso';
 import { PermisosGuard } from '../common/permisos.guard';
@@ -27,23 +27,23 @@ export class DespachosController {
   @UseGuards(JwtAuthGuard, RolesGuard, PermisosGuard)
   @Roles(UserRole.DUENO, UserRole.PERSONAL)
   @AppPermiso('despachos', 'insertar')
-  create(@Body() dto: CreateDespachoDto) {
-    return this.despachos.create(dto);
+  create(@CurrentUser() user: AuthUser, @Body() dto: CreateDespachoDto) {
+    return this.despachos.create(dto, user);
   }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard, PermisosGuard)
   @Roles(UserRole.DUENO, UserRole.PERSONAL)
   @AppPermiso('despachos', 'actualizar')
-  update(@Param('id') id: string, @Body() dto: UpdateDespachoDto) {
-    return this.despachos.update(Number(id), dto);
+  update(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() dto: UpdateDespachoDto) {
+    return this.despachos.update(Number(id), dto, user);
   }
 
   @Post(':id/miembros')
   @UseGuards(JwtAuthGuard, RolesGuard, PermisosGuard)
   @Roles(UserRole.DUENO, UserRole.PERSONAL)
   @AppPermiso('despachos', 'insertar')
-  addMember(@Param('id') id: string, @Body() dto: CreateMiembroDto) {
-    return this.despachos.addMember(Number(id), dto);
+  addMember(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() dto: CreateMiembroDto) {
+    return this.despachos.addMember(Number(id), dto, user);
   }
 }

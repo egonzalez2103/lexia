@@ -1,8 +1,12 @@
 'use client';
 
 import {
+  ArrowLeftRight,
   Building2,
   ChevronDown,
+  Coins,
+  Contact,
+  History,
   Home,
   Landmark,
   Library,
@@ -35,6 +39,7 @@ const NAV: NavItem[] = [
     children: [
       { href: '/panel/despachos', label: 'Despachos', icon: Building2, clave: 'despachos' },
       { href: '/panel/administracion/permisos', label: 'Permisos', icon: LockKeyhole, clave: 'grupos' },
+      { href: '/panel/registro-ediciones', label: 'Registro de ediciones', icon: History, clave: 'registro-ediciones' },
     ],
   },
   {
@@ -50,6 +55,16 @@ const NAV: NavItem[] = [
     ],
   },
   { href: '/panel/caja', label: 'Control de cajas', icon: Landmark, clave: 'caja' },
+  {
+    label: 'Del despacho',
+    icon: Building2,
+    children: [
+      { href: '/panel/clientes', label: 'Clientes', icon: Contact, clave: 'clientes' },
+      { href: '/panel/movimientos', label: 'Movimientos', icon: ArrowLeftRight, clave: 'movimientos' },
+      { href: '/panel/caja-general', label: 'Caja general', icon: Landmark, clave: 'caja-general' },
+      { href: '/panel/comisiones', label: 'Comisiones', icon: Coins, clave: 'comisiones' },
+    ],
+  },
   { href: '/panel/nominas', label: 'Nóminas', icon: Wallet, clave: 'nominas' },
   { href: '/panel/reportes', label: 'Reportes', icon: ScrollText, clave: 'reportes' },
 ];

@@ -2,6 +2,9 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
+import { BitacoraService } from '../bitacora/bitacora.service';
+import { altaDe, diffCampos } from '../bitacora/cambios';
+import { AuthUser } from '../common/auth';
 import { UserRole } from '../common/enums';
 import { normalizeSlug } from '../common/slug';
 import { Despacho } from '../entities/despacho.entity';
@@ -13,6 +16,7 @@ export class DespachosService {
   constructor(
     @InjectRepository(Despacho) private readonly despachos: Repository<Despacho>,
     @InjectRepository(User) private readonly users: Repository<User>,
+    private readonly bitacora: BitacoraService,
   ) {}
 
   async list() {
@@ -33,7 +37,7 @@ export class DespachosService {
     };
   }
 
-  async create(dto: CreateDespachoDto) {
+  async create(dto: CreateDespachoDto, actor: AuthUser) {
     const slug = normalizeSlug(dto.slug);
     if (!slug) throw new ConflictException('Ese enlace no se puede usar. Elige otro.');
     const taken = await this.despachos.findOne({ where: { slug } });
@@ -60,22 +64,52 @@ export class DespachosService {
         despacho_id: despacho.id,
       }),
     );
+    await this.bitacora.registrar({
+      despachoId: null,
+      entidad: 'Despacho',
+      entidadId: despacho.id,
+      referencia: despacho.name,
+      tipo: 'alta',
+      campos: altaDe({
+        Nombre: despacho.name,
+        Enlace: despacho.slug,
+        Teléfono: despacho.phone,
+        Domicilio: despacho.address,
+        Descripción: despacho.blurb,
+        Administrador: dto.admin_name.trim(),
+        'Correo del administrador': email,
+      }),
+      actor,
+    });
     return this.present(despacho);
   }
 
-  async update(id: number, dto: UpdateDespachoDto) {
+  async update(id: number, dto: UpdateDespachoDto, actor: AuthUser) {
     const despacho = await this.find(id);
+    const antes = fichaDespacho(despacho);
     if (dto.name) despacho.name = dto.name.trim();
     if (dto.phone !== undefined) despacho.phone = dto.phone.trim() || null;
     if (dto.address !== undefined) despacho.address = dto.address.trim() || null;
     if (dto.blurb !== undefined) despacho.blurb = dto.blurb.trim() || null;
     if (dto.is_active !== undefined) despacho.is_active = dto.is_active;
     await this.despachos.save(despacho);
+    const campos = diffCampos(antes, fichaDespacho(despacho));
+    if (campos) {
+      await this.bitacora.registrar({
+        despachoId: despacho.id,
+        entidad: 'Despacho',
+        entidadId: despacho.id,
+        referencia: despacho.name,
+        tipo: 'edicion',
+        campos,
+        actor,
+      });
+    }
     return this.present(despacho);
   }
 
-  async addMember(id: number, dto: CreateMiembroDto) {
-    await this.find(id);
+  async addMember(id: number, dto: CreateMiembroDto, actor: AuthUser) {
+    const despacho = await this.find(id);
     const email = dto.email.trim().toLowerCase();
     const emailTaken = await this.users.findOne({ where: { email } });
     if (emailTaken) throw new ConflictException('Ese correo ya tiene cuenta.');
@@ -88,6 +122,15 @@ export class DespachosService {
         despacho_id: id,
       }),
     );
+    await this.bitacora.registrar({
+      despachoId: id,
+      entidad: 'Usuario',
+      entidadId: user.id,
+      referencia: user.name,
+      tipo: 'alta',
+      campos: altaDe({ Nombre: user.name, Correo: user.email, Despacho: despacho.name }),
+      actor,
+    });
     return { id: user.id, name: user.name, email: user.email, role: user.role };
   }
 
@@ -120,4 +163,14 @@ export class DespachosService {
       })),
     };
   }
+}
+
+function fichaDespacho(despacho: Despacho) {
+  return {
+    Nombre: despacho.name,
+    Teléfono: despacho.phone,
+    Domicilio: despacho.address,
+    Descripción: despacho.blurb,
+    Activo: despacho.is_active ? 'Sí' : 'No',
+  };
 }

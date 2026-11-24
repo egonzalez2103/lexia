@@ -24,6 +24,12 @@ export function puede(clave: string, accion: 'ver' | 'insertar' | 'actualizar' |
   return accion === 'ver' ? true : permiso[accion];
 }
 
+export function esPersonalSoloLectura(clave: string, accion: 'insertar' | 'actualizar' | 'eliminar' = 'insertar') {
+  const user = readSession()?.user;
+  if (!user || user.role !== 'PERSONAL') return false;
+  return !puede(clave, accion);
+}
+
 export function homeFor(user: SessionUser) {
   if (user.role === 'ADMIN_DESPACHO' || user.role === 'MIEMBRO_DESPACHO') return '/despacho';
   return '/panel';

@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard, Roles, RolesGuard } from '../common/auth';
+import { AuthUser, CurrentUser, JwtAuthGuard, Roles, RolesGuard } from '../common/auth';
 import { UserRole } from '../common/enums';
 import { AppPermiso } from '../common/permiso';
 import { PermisosGuard } from '../common/permisos.guard';
@@ -20,19 +20,19 @@ export class NominasController {
 
   @Post('pagos')
   @AppPermiso('nominas', 'insertar')
-  pagar(@Body() dto: CrearPagoNominaDto) {
-    return this.nominas.pagar(dto);
+  pagar(@CurrentUser() user: AuthUser, @Body() dto: CrearPagoNominaDto) {
+    return this.nominas.pagar(dto, user);
   }
 
   @Post('semana/comprobante')
   @AppPermiso('nominas', 'insertar')
-  comprobante(@Body() dto: ArchivoSemanaDto) {
-    return this.nominas.comprobante(dto);
+  comprobante(@CurrentUser() user: AuthUser, @Body() dto: ArchivoSemanaDto) {
+    return this.nominas.comprobante(dto, user);
   }
 
   @Post('recibos')
   @AppPermiso('nominas', 'insertar')
-  recibo(@Body() dto: ReciboNominaDto) {
-    return this.nominas.recibo(dto);
+  recibo(@CurrentUser() user: AuthUser, @Body() dto: ReciboNominaDto) {
+    return this.nominas.recibo(dto, user);
   }
 }

@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard, Roles, RolesGuard } from '../common/auth';
+import { AuthUser, CurrentUser, JwtAuthGuard, Roles, RolesGuard } from '../common/auth';
 import { UserRole } from '../common/enums';
 import { AppPermiso } from '../common/permiso';
 import { PermisosGuard } from '../common/permisos.guard';
@@ -20,13 +20,13 @@ export class CajaController {
 
   @Post('movimientos')
   @AppPermiso('caja', 'insertar')
-  mover(@Body() dto: CreateMovimientoDto) {
-    return this.caja.mover(dto);
+  mover(@CurrentUser() user: AuthUser, @Body() dto: CreateMovimientoDto) {
+    return this.caja.mover(dto, user);
   }
 
   @Post('cortes')
   @AppPermiso('caja', 'insertar')
-  cortar(@Body() dto: CreateCorteDto) {
-    return this.caja.cortar(dto);
+  cortar(@CurrentUser() user: AuthUser, @Body() dto: CreateCorteDto) {
+    return this.caja.cortar(dto, user);
   }
 }

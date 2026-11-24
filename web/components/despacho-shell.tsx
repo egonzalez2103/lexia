@@ -34,6 +34,11 @@ export function DespachoShell({ children }: { children: React.ReactNode }) {
 
   const links = [
     ['/despacho', 'Expedientes'],
+    ['/despacho/clientes', 'Clientes'],
+    ['/despacho/movimientos', 'Movimientos'],
+    ...(user.role === 'ADMIN_DESPACHO' ? [['/despacho/caja-general', 'Caja general']] : []),
+    ['/despacho/comisiones', 'Comisiones'],
+    ...(user.role === 'ADMIN_DESPACHO' ? [['/despacho/registro-ediciones', 'Registro de ediciones']] : []),
     ...(user.despacho_slug ? [[`/sitio/${user.despacho_slug}`, 'Ficha pública']] : []),
   ];
 
@@ -57,7 +62,7 @@ export function DespachoShell({ children }: { children: React.ReactNode }) {
       <div className="mx-auto grid max-w-6xl gap-8 px-6 py-8 md:grid-cols-[220px_1fr]">
         <nav className="flex flex-col gap-1 text-sm">
           {links.map(([href, label]) => {
-            const active = href === '/despacho' ? pathname === href || pathname.startsWith('/despacho/') : pathname === href;
+            const active = href === '/despacho' ? pathname === '/despacho' || pathname.startsWith('/despacho/expedientes') : pathname === href || pathname.startsWith(`${href}/`);
             return (
               <Link
                 key={href}

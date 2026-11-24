@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { BitacoraService } from '../bitacora/bitacora.service';
+import { altaDe } from '../bitacora/cambios';
+import { AuthUser } from '../common/auth';
 import { money } from '../common/slug';
 import { CorteCaja } from '../entities/corte-caja.entity';
 import { MovimientoCaja } from '../entities/movimiento-caja.entity';
@@ -11,6 +14,7 @@ export class CajaService {
   constructor(
     @InjectRepository(MovimientoCaja) private readonly movimientos: Repository<MovimientoCaja>,
     @InjectRepository(CorteCaja) private readonly cortes: Repository<CorteCaja>,
+    private readonly bitacora: BitacoraService,
   ) {}
 
   async resumen() {
@@ -28,7 +32,7 @@ export class CajaService {
     };
   }
 
-  async mover(dto: CreateMovimientoDto) {
+  async mover(dto: CreateMovimientoDto, actor: AuthUser) {
     const row = await this.movimientos.save(
       this.movimientos.create({
         caja: dto.caja,
@@ -38,10 +42,25 @@ export class CajaService {
         fecha: dto.fecha.slice(0, 10),
       }),
     );
+    await this.bitacora.registrar({
+      despachoId: null,
+      entidad: 'MovimientoCaja',
+      entidadId: row.id,
+      referencia: row.concepto,
+      tipo: 'alta',
+      campos: altaDe({
+        Caja: row.caja === 'chica' ? 'Caja chica' : 'Caja general',
+        Tipo: row.tipo === 'ingreso' ? 'Ingreso' : 'Egreso',
+        Concepto: row.concepto,
+        Monto: row.monto,
+        Fecha: row.fecha,
+      }),
+      actor,
+    });
     return { ...row, monto: money(row.monto) };
   }
 
-  async cortar(dto: CreateCorteDto) {
+  async cortar(dto: CreateCorteDto, actor: AuthUser) {
     const row = await this.cortes.save(
       this.cortes.create({
         caja: dto.caja,
@@ -50,6 +69,20 @@ export class CajaService {
         notas: dto.notas?.trim() || null,
       }),
     );
+    await this.bitacora.registrar({
+      despachoId: null,
+      entidad: 'CorteCaja',
+      entidadId: row.id,
+      referencia: `Corte de ${row.caja === 'chica' ? 'caja chica' : 'caja general'}`,
+      tipo: 'alta',
+      campos: altaDe({
+        Caja: row.caja === 'chica' ? 'Caja chica' : 'Caja general',
+        Fecha: row.fecha,
+        'Saldo contado': row.saldo_contado,
+        Notas: row.notas,
+      }),
+      actor,
+    });
     return { ...row, saldo_contado: money(row.saldo_contado) };
   }
 

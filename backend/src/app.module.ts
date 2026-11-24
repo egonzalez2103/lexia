@@ -2,12 +2,17 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
+import { BitacoraModule } from './bitacora/bitacora.module';
 import { CommonModule } from './common/common.module';
+import { CajaGeneralModule } from './caja-general/caja-general.module';
 import { CajaModule } from './caja/caja.module';
+import { ClientesModule } from './clientes/clientes.module';
+import { ComisionesModule } from './comisiones/comisiones.module';
 import { ColaboradoresModule } from './colaboradores/colaboradores.module';
 import { DespachosModule } from './despachos/despachos.module';
 import { ExpedientesModule } from './expedientes/expedientes.module';
 import { GruposModule } from './grupos/grupos.module';
+import { MovimientosModule } from './movimientos/movimientos.module';
 import { HealthController } from './health.controller';
 import { NominasModule } from './nominas/nominas.module';
 import { ReportesModule } from './reportes/reportes.module';
@@ -36,6 +41,7 @@ import { UploadsModule } from './uploads/uploads.module';
       }),
     }),
     CommonModule,
+    BitacoraModule,
     AuthModule,
     DespachosModule,
     ExpedientesModule,
@@ -43,6 +49,10 @@ import { UploadsModule } from './uploads/uploads.module';
     GruposModule,
     TiposColaboradorModule,
     CajaModule,
+    MovimientosModule,
+    CajaGeneralModule,
+    ClientesModule,
+    ComisionesModule,
     NominasModule,
     ReportesModule,
     UploadsModule,

@@ -1,6 +1,9 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { BitacoraService } from '../bitacora/bitacora.service';
+import { altaDe } from '../bitacora/cambios';
+import { AuthUser } from '../common/auth';
 import { money } from '../common/slug';
 import { Colaborador } from '../entities/colaborador.entity';
 import { MovimientoCaja } from '../entities/movimiento-caja.entity';
@@ -18,6 +21,7 @@ export class NominasService {
     @InjectRepository(NominaPago) private readonly pagos: Repository<NominaPago>,
     @InjectRepository(NominaRecibo) private readonly recibos: Repository<NominaRecibo>,
     @InjectRepository(Colaborador) private readonly colaboradores: Repository<Colaborador>,
+    private readonly bitacora: BitacoraService,
   ) {}
 
   async resumen(semanaInicio: string) {
@@ -73,15 +77,16 @@ export class NominasService {
     };
   }
 
-  async pagar(dto: CrearPagoNominaDto) {
+  async pagar(dto: CrearPagoNominaDto, actor: AuthUser) {
     const semana = assertMonday(dto.semana);
     const person = await this.colaboradores.findOne({ where: { id: dto.colaborador_id } });
     if (!person) throw new NotFoundException('No encontramos a ese colaborador.');
     const monto = round2(dto.monto);
     const fecha = hoy();
-    await this.pagos.manager.transaction(async (manager) => {
+    let movimientoId: number | null = null;
+    const pago = await this.pagos.manager.transaction(async (manager) => {
       if (dto.forma_pago === 'Efectivo') {
-        await manager.save(
+        const movimiento = await manager.save(
           MovimientoCaja,
           manager.create(MovimientoCaja, {
             caja: 'general',
@@ -91,8 +96,9 @@ export class NominasService {
             fecha,
           }),
         );
+        movimientoId = movimiento.id;
       }
-      await manager.save(
+      return manager.save(
         NominaPago,
         manager.create(NominaPago, {
           semana_inicio: semana.inicio,
@@ -104,29 +110,78 @@ export class NominasService {
         }),
       );
     });
+    if (movimientoId) {
+      await this.bitacora.registrar({
+        despachoId: null,
+        entidad: 'MovimientoCaja',
+        entidadId: movimientoId,
+        referencia: `Nómina de ${nombreCompleto(person)}`,
+        tipo: 'alta',
+        campos: altaDe({
+          Caja: 'Caja general',
+          Tipo: 'Egreso',
+          Concepto: `Nómina de ${nombreCompleto(person)}`,
+          Monto: pago.monto,
+          Fecha: fecha,
+        }),
+        actor,
+      });
+    }
+    await this.bitacora.registrar({
+      despachoId: null,
+      entidad: 'NominaPago',
+      entidadId: pago.id,
+      referencia: `Nómina de ${nombreCompleto(person)}`,
+      tipo: 'alta',
+      campos: altaDe({
+        Colaborador: nombreCompleto(person),
+        Semana: semana.inicio,
+        'Forma de pago': pago.forma_pago,
+        Monto: pago.monto,
+        Descripción: pago.descripcion,
+      }),
+      actor,
+    });
     return this.resumen(semana.inicio);
   }
 
-  async comprobante(dto: ArchivoSemanaDto) {
+  async comprobante(dto: ArchivoSemanaDto, actor: AuthUser) {
     const semana = assertMonday(dto.semana);
     assertArchivo(dto.archivo_url);
     const row = await this.semanas.findOne({ where: { semana_inicio: semana.inicio } });
+    const antes = row?.comprobante_url ?? null;
+    let savedId = row?.id;
     if (row) {
       row.comprobante_url = dto.archivo_url;
       await this.semanas.save(row);
+      savedId = row.id;
     } else {
-      await this.semanas.save(
+      const created = await this.semanas.save(
         this.semanas.create({
           semana_inicio: semana.inicio,
           semana_fin: semana.fin,
           comprobante_url: dto.archivo_url,
         }),
       );
+      savedId = created.id;
+    }
+    if (savedId && antes !== dto.archivo_url) {
+      await this.bitacora.registrar({
+        despachoId: null,
+        entidad: 'NominaComprobante',
+        entidadId: savedId,
+        referencia: `Comprobante ${semana.inicio}`,
+        tipo: antes ? 'edicion' : 'alta',
+        campos: antes
+          ? { Comprobante: { anterior: 'Adjunto', nuevo: 'Reemplazado' } }
+          : altaDe({ Semana: semana.inicio, Comprobante: 'Adjunto' }),
+        actor,
+      });
     }
     return this.resumen(semana.inicio);
   }
 
-  async recibo(dto: ReciboNominaDto) {
+  async recibo(dto: ReciboNominaDto, actor: AuthUser) {
     const semana = assertMonday(dto.semana);
     assertArchivo(dto.archivo_url);
     const person = await this.colaboradores.findOne({ where: { id: dto.colaborador_id } });
@@ -134,17 +189,28 @@ export class NominasService {
     const row = await this.recibos.findOne({
       where: { semana_inicio: semana.inicio, colaborador_id: person.id },
     });
-    if (row) {
-      row.archivo_url = dto.archivo_url;
-      await this.recibos.save(row);
-    } else {
-      await this.recibos.save(
-        this.recibos.create({
-          semana_inicio: semana.inicio,
-          colaborador_id: person.id,
-          archivo_url: dto.archivo_url,
-        }),
-      );
+    const antes = row?.archivo_url ?? null;
+    const saved = row
+      ? await this.recibos.save({ ...row, archivo_url: dto.archivo_url })
+      : await this.recibos.save(
+          this.recibos.create({
+            semana_inicio: semana.inicio,
+            colaborador_id: person.id,
+            archivo_url: dto.archivo_url,
+          }),
+        );
+    if (antes !== dto.archivo_url) {
+      await this.bitacora.registrar({
+        despachoId: null,
+        entidad: 'NominaRecibo',
+        entidadId: saved.id,
+        referencia: `Recibo de ${nombreCompleto(person)}`,
+        tipo: antes ? 'edicion' : 'alta',
+        campos: antes
+          ? { Recibo: { anterior: 'Adjunto', nuevo: 'Reemplazado' } }
+          : altaDe({ Colaborador: nombreCompleto(person), Semana: semana.inicio, Recibo: 'Adjunto' }),
+        actor,
+      });
     }
     return this.resumen(semana.inicio);
   }

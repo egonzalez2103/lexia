@@ -17,6 +17,11 @@ const APLICACIONES = [
   { clave: 'caja', nombre: 'Control de cajas', descripcion: 'Caja chica y caja general', categoria: 'Control de cajas' },
   { clave: 'nominas', nombre: 'Nóminas', descripcion: 'Pago semanal de lunes a domingo', categoria: 'Nóminas' },
   { clave: 'reportes', nombre: 'Reportes', descripcion: 'Resumen de la operación', categoria: 'Reportes' },
+  { clave: 'registro-ediciones', nombre: 'Registro de ediciones', descripcion: 'Consulta de altas, cambios y bajas', categoria: 'Administración' },
+  { clave: 'movimientos', nombre: 'Movimientos', descripcion: 'Caja del día del despacho', categoria: 'Del despacho' },
+  { clave: 'caja-general', nombre: 'Caja general', descripcion: 'Caja general y cuadre de caja chica', categoria: 'Del despacho' },
+  { clave: 'clientes', nombre: 'Clientes', descripcion: 'Cartera de clientes del despacho', categoria: 'Del despacho' },
+  { clave: 'comisiones', nombre: 'Comisiones', descripcion: 'Comisiones de los abogados del despacho', categoria: 'Del despacho' },
 ];
 
 @Injectable()
