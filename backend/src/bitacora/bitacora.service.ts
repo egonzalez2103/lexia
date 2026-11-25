@@ -62,7 +62,7 @@ export class BitacoraService {
     if (propio && !user.despacho_id) throw new ForbiddenException('Esta cuenta no pertenece a un despacho.');
 
     const page = Math.max(1, query.page || 1);
-    const pageSize = Math.min(100, Math.max(1, query.pageSize || 20));
+    const pageSize = Math.min(200, Math.max(1, query.pageSize || 50));
     const qb = this.filas.createQueryBuilder('b');
     if (propio) qb.andWhere('b.despacho_id = :despachoId', { despachoId: user.despacho_id });
     else if (query.despachoId === 0) qb.andWhere('b.despacho_id IS NULL');
