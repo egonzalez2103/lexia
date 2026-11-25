@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { BitacoraModule } from './bitacora/bitacora.module';
 import { CommonModule } from './common/common.module';
 import { CajaGeneralModule } from './caja-general/caja-general.module';
+import { CatalogoMovimientosModule } from './catalogo-movimientos/catalogo-movimientos.module';
 import { CajaModule } from './caja/caja.module';
 import { ClientesModule } from './clientes/clientes.module';
 import { ComisionesModule } from './comisiones/comisiones.module';
@@ -15,6 +16,7 @@ import { GruposModule } from './grupos/grupos.module';
 import { MovimientosModule } from './movimientos/movimientos.module';
 import { HealthController } from './health.controller';
 import { NominasModule } from './nominas/nominas.module';
+import { RegistrosMovimientoModule } from './registros-movimiento/registros-movimiento.module';
 import { ReportesModule } from './reportes/reportes.module';
 import { SeedModule } from './seed/seed.module';
 import { TiposColaboradorModule } from './tipos-colaborador/tipos-colaborador.module';
@@ -50,6 +52,8 @@ import { UploadsModule } from './uploads/uploads.module';
     TiposColaboradorModule,
     CajaModule,
     MovimientosModule,
+    CatalogoMovimientosModule,
+    RegistrosMovimientoModule,
     CajaGeneralModule,
     ClientesModule,
     ComisionesModule,

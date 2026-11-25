@@ -2,6 +2,7 @@
 
 import {
   ArrowLeftRight,
+  Banknote,
   Building2,
   ChevronDown,
   Coins,
@@ -52,16 +53,24 @@ const NAV: NavItem[] = [
     icon: Library,
     children: [
       { href: '/panel/catalogos/tipos-colaborador', label: 'Tipos de colaborador', icon: Tags, clave: 'tipos-colaborador' },
+      { href: '/panel/catalogos/movimientos', label: 'Movimientos', icon: Tags, clave: 'movimientos' },
     ],
   },
-  { href: '/panel/caja', label: 'Control de cajas', icon: Landmark, clave: 'caja' },
+  {
+    label: 'Control de cajas',
+    icon: Landmark,
+    children: [
+      { href: '/panel/movimientos', label: 'Movimientos', icon: ArrowLeftRight, clave: 'movimientos' },
+      { href: '/panel/movimientos/caja', label: 'Caja del día', icon: Banknote, clave: 'movimientos' },
+      { href: '/panel/caja-general', label: 'Caja general', icon: Landmark, clave: 'caja-general' },
+      { href: '/panel/caja', label: 'De la plataforma', icon: Landmark, clave: 'caja' },
+    ],
+  },
   {
     label: 'Del despacho',
     icon: Building2,
     children: [
       { href: '/panel/clientes', label: 'Clientes', icon: Contact, clave: 'clientes' },
-      { href: '/panel/movimientos', label: 'Movimientos', icon: ArrowLeftRight, clave: 'movimientos' },
-      { href: '/panel/caja-general', label: 'Caja general', icon: Landmark, clave: 'caja-general' },
       { href: '/panel/comisiones', label: 'Comisiones', icon: Coins, clave: 'comisiones' },
     ],
   },
@@ -80,9 +89,11 @@ function isGroup(item: NavItem): item is NavGroup {
   return 'children' in item;
 }
 
-function isCurrent(pathname: string, href: string) {
+function isCurrent(pathname: string, href: string, siblings: string[] = []) {
   if (href === '/panel') return pathname === href;
-  return pathname === href || pathname.startsWith(`${href}/`);
+  const coincide = pathname === href || pathname.startsWith(`${href}/`);
+  if (!coincide) return false;
+  return !siblings.some((otro) => otro !== href && otro.length > href.length && (pathname === otro || pathname.startsWith(`${otro}/`)));
 }
 
 function navFor(user: SessionUser): NavItem[] {
@@ -96,7 +107,7 @@ function navFor(user: SessionUser): NavItem[] {
 }
 
 function openGroupFor(pathname: string) {
-  const current = NAV.find((item) => isGroup(item) && item.children.some((child) => isCurrent(pathname, child.href)));
+  const current = NAV.find((item) => isGroup(item) && item.children.some((child) => isCurrent(pathname, child.href, item.children.map((hermano) => hermano.href))));
   return current && isGroup(current) ? current.label : null;
 }
 
@@ -206,7 +217,7 @@ export function PanelShell({ children }: { children: React.ReactNode }) {
                       <div className="ml-4 mt-1 space-y-1">
                         {item.children.map((child) => {
                           const ChildIcon = child.icon;
-                          const childActive = isCurrent(pathname, child.href);
+                          const childActive = isCurrent(pathname, child.href, item.children.map((hermano) => hermano.href));
                           return (
                             <Link
                               key={child.href}
