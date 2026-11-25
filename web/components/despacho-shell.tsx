@@ -38,7 +38,7 @@ export function DespachoShell({ children }: { children: React.ReactNode }) {
     ['/despacho/catalogos/movimientos', 'Tipos de movimiento'],
     ['/despacho/movimientos', 'Movimientos'],
     ['/despacho/movimientos/caja', 'Caja del día'],
-    ...(user.role === 'ADMIN_DESPACHO' ? [['/despacho/caja-general', 'Caja general']] : []),
+    ...(user.role === 'ADMIN_DESPACHO' ? [['/despacho/caja-general', 'Movimientos de caja general']] : []),
     ['/despacho/comisiones', 'Comisiones'],
     ...(user.role === 'ADMIN_DESPACHO' ? [['/despacho/registro-ediciones', 'Registro de ediciones']] : []),
     ...(user.despacho_slug ? [[`/sitio/${user.despacho_slug}`, 'Ficha pública']] : []),

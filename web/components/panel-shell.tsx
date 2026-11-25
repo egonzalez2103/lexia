@@ -62,7 +62,7 @@ const NAV: NavItem[] = [
     children: [
       { href: '/panel/movimientos', label: 'Movimientos', icon: ArrowLeftRight, clave: 'movimientos' },
       { href: '/panel/movimientos/caja', label: 'Caja del día', icon: Banknote, clave: 'movimientos' },
-      { href: '/panel/caja-general', label: 'Caja general', icon: Landmark, clave: 'caja-general' },
+      { href: '/panel/caja-general', label: 'Movimientos de caja general', icon: Landmark, clave: 'caja-general' },
       { href: '/panel/caja', label: 'De la plataforma', icon: Landmark, clave: 'caja' },
     ],
   },

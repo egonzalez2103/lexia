@@ -106,6 +106,16 @@ export class MovimientosService {
           concepto: `Inicio para ${destino.name}`.slice(0, 180),
           monto: monto.toFixed(2),
           fecha: hoy(),
+          tipo_movimiento_id: null,
+          corresponde_usuario_id: destino.id,
+          usuario_id: user.id,
+          cuenta_bancaria_id: null,
+          registro_id: null,
+          forma_pago: 'efectivo',
+          descripcion: `Inicio de caja — ${destino.name}`,
+          afecta_operacion: true,
+          activo: true,
+          origen: 'inicio',
         }),
       );
       await this.bitacora.registrar(

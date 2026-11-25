@@ -73,9 +73,10 @@ export function saldoUsuario(movs: MovimientoDespacho[], userId: number, hastaId
   };
 }
 
-export function saldoCaja(rows: Array<{ tipo: string; monto: string }>) {
+export function saldoCaja(rows: Array<{ tipo: string; monto: string; activo?: boolean; afecta_operacion?: boolean }>) {
   return centavos(
     rows.reduce((total, row) => {
+      if (row.activo === false || row.afecta_operacion === false) return total;
       const monto = money(row.monto);
       return row.tipo === 'ingreso' || row.tipo === 'cuadre' ? total + monto : total - monto;
     }, 0),

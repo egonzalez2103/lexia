@@ -116,6 +116,16 @@ export class RegistrosMovimientoService {
             concepto: `${tipo.nombre} · ${persona.name}`.slice(0, 180),
             monto: monto.toFixed(2),
             fecha: hoy(),
+            tipo_movimiento_id: tipo.id,
+            corresponde_usuario_id: persona.id,
+            usuario_id: user.id,
+            cuenta_bancaria_id: cuenta?.id ?? null,
+            registro_id: null,
+            forma_pago: dto.forma_pago,
+            descripcion,
+            afecta_operacion: true,
+            activo: true,
+            origen: 'registro',
           }),
         );
         cajaId = caja.id;
@@ -149,6 +159,7 @@ export class RegistrosMovimientoService {
           activo: true,
         }),
       );
+      if (cajaId) await manager.update(CajaGeneralDespacho, cajaId, { registro_id: row.id });
       await this.bitacora.registrar(
         {
           despachoId: despacho.id,
@@ -186,7 +197,8 @@ export class RegistrosMovimientoService {
       if (row.caja_movimiento_id) {
         const caja = await manager.findOne(CajaGeneralDespacho, { where: { id: row.caja_movimiento_id, despacho_id: despacho.id } });
         if (caja) {
-          await manager.delete(CajaGeneralDespacho, caja.id);
+          caja.activo = false;
+          await manager.save(caja);
           await this.bitacora.registrar(
             {
               despachoId: despacho.id,
