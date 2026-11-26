@@ -53,7 +53,7 @@ export function DespachoShell({ children }: { children: React.ReactNode }) {
     if (!coincide) return false;
     return !hrefs.some((otro) => otro !== href && otro.length > href.length && (pathname === otro || pathname.startsWith(`${otro}/`)));
   }
-  const item = (active: boolean) => `flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium ${active ? 'bg-secondary text-white shadow' : 'text-neutral-800 hover:bg-neutral-100'}`;
+  const item = (active: boolean) => `flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium ${active ? 'bg-black text-white' : 'text-neutral-800 hover:bg-neutral-100'}`;
 
   return (
     <div className="min-h-dvh bg-white text-black">

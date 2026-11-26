@@ -100,7 +100,7 @@ function isCurrent(pathname: string, href: string, siblings: string[] = []) {
 }
 
 function navClass(active: boolean) {
-  return `flex w-full rounded-lg px-3 py-2 text-left text-sm font-medium ${active ? 'bg-secondary text-white shadow' : 'text-neutral-800 hover:bg-neutral-100'}`;
+  return `flex w-full rounded-lg px-3 py-2 text-left text-sm font-medium ${active ? 'bg-black text-white' : 'text-neutral-800 hover:bg-neutral-100'}`;
 }
 
 function iniciales(nombre: string) {

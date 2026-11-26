@@ -9,8 +9,6 @@ const config: Config = {
         oxblood: '#6e2d3c',
         cream: '#f4efe6',
         brass: '#a68456',
-        primary: '#1c40b5',
-        secondary: '#00b0e0',
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],

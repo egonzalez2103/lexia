@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { AlertCircle, ArrowDown, ArrowUp, ArrowUpDown, Landmark, Plus, Save, Search, Trash2, X } from 'lucide-react';
+import { AlertCircle, ArrowDown, ArrowUp, ArrowUpDown, Plus, Save, Search, Trash2, X } from 'lucide-react';
 import { ApiError, api } from '@/lib/api';
 import { Notice } from '@/components/panel-shell';
 import { esPersonalSoloLectura } from '@/lib/session';
@@ -254,10 +254,7 @@ export function MovimientosCajaGeneral({ elegirDespacho = false }: { elegirDespa
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="flex items-center gap-2 text-3xl font-bold">
-            <Landmark className="h-8 w-8 shrink-0" />
-            Movimientos de caja general
-          </h1>
+          <h1 className="text-3xl font-bold">Movimientos de caja general</h1>
           <p className="mt-1 text-neutral-500">
             {elegirDespacho
               ? 'Registra ingresos y egresos de caja general en cualquier despacho.'
@@ -282,7 +279,7 @@ export function MovimientosCajaGeneral({ elegirDespacho = false }: { elegirDespa
           ) : null}
           <button
             type="button"
-            className="inline-flex h-9 items-center justify-center gap-2 bg-primary shadow hover:bg-primary/90 px-3 text-sm font-medium text-white disabled:opacity-40"
+            className="inline-flex h-9 items-center justify-center gap-2 bg-black hover:bg-neutral-800 px-3 text-sm font-medium text-white disabled:opacity-40"
             disabled={!listo || !puedeCrear}
             title={listo ? undefined : 'Selecciona un despacho antes de registrar movimientos'}
             onClick={() => { setForm(vacio); setAbierto(true); setError(''); }}
@@ -301,34 +298,9 @@ export function MovimientosCajaGeneral({ elegirDespacho = false }: { elegirDespa
       ) : null}
       {abierto || baja ? null : <Notice error={error} />}
 
-      <section className="rounded-lg border border-neutral-200 p-4 shadow-sm sm:p-6">
-        <h2 className="text-lg font-semibold">Movimientos de caja general</h2>
-        <p className="mt-1 text-sm text-neutral-500">
-          Ingresos, egresos e inicios de caja (efectivo que sale al entregar fondo). El rango inicial cubre desde el último cuadre hasta la fecha de esta pantalla.
-        </p>
-        {lista ? (
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-neutral-200 px-4 py-3 text-sm">
-            <p>
-              Saldo <span className="font-semibold">{dinero(lista.saldo_general)}</span>
-              <span className="mx-2 text-neutral-300">·</span>
-              Caja chica por cuadrar <span className="font-semibold">{dinero(lista.saldo_chica)}</span>
-            </p>
-            {puedeCrear ? (
-              <button
-                type="button"
-                className="h-9 bg-primary shadow hover:bg-primary/90 px-3 text-sm font-medium text-white disabled:opacity-40"
-                disabled={lista.pendientes_corte.length > 0 || lista.saldo_chica <= 0}
-                onClick={cuadrar}
-              >
-                Cuadrar caja chica
-              </button>
-            ) : null}
-          </div>
-        ) : null}
-        {lista?.pendientes_corte.length ? (
-          <p className="mt-3 text-sm text-neutral-600">Falta el corte de {lista.pendientes_corte.map((persona) => persona.name).join(', ')}. La caja chica no se puede cuadrar mientras eso siga abierto.</p>
-        ) : null}
-
+      <section className="rounded-lg border border-neutral-200 p-4 sm:p-6">
+        <h2 className="text-lg font-semibold">Filtros</h2>
+        <p className="mt-1 text-sm text-neutral-500">El rango inicial cubre desde el último cuadre hasta la fecha de esta pantalla.</p>
         <div className="mb-4 mt-4 flex w-fit gap-1 rounded-md bg-neutral-100 p-1">
           <Tab activo={ambito === 'operacion'} onClick={() => { setAmbito('operacion'); setPage(1); }}>Operación ({lista?.total_operacion ?? 0})</Tab>
           <Tab activo={ambito === 'fuera'} onClick={() => { setAmbito('fuera'); setPage(1); }}>Fuera de operación ({lista?.total_fuera ?? 0})</Tab>
@@ -342,7 +314,7 @@ export function MovimientosCajaGeneral({ elegirDespacho = false }: { elegirDespa
           <div className="flex flex-wrap items-end gap-3">
             <label className="space-y-1 text-xs text-neutral-500">Desde<input type="date" className={campo} value={desde} onChange={(event) => setDesde(event.target.value)} /></label>
             <label className="space-y-1 text-xs text-neutral-500">Hasta<input type="date" className={campo} value={hasta} onChange={(event) => setHasta(event.target.value)} /></label>
-            <button type="button" className="h-9 bg-primary shadow hover:bg-primary/90 px-3 text-sm text-white disabled:opacity-40" disabled={!rangoCambiado} onClick={aplicarFechas}>Aplicar fechas</button>
+            <button type="button" className="h-9 bg-black hover:bg-neutral-800 px-3 text-sm text-white disabled:opacity-40" disabled={!rangoCambiado} onClick={aplicarFechas}>Aplicar fechas</button>
             <button type="button" className="inline-flex h-9 items-center border border-neutral-300 px-3 text-sm" onClick={limpiar}><X className="mr-1 h-4 w-4" />Limpiar</button>
             <select className="h-9 rounded-md border border-neutral-300 px-2 text-sm" value={tipo} onChange={(event) => { setTipo(event.target.value); setPage(1); }}>
               <option value="">Todos</option>
@@ -370,20 +342,50 @@ export function MovimientosCajaGeneral({ elegirDespacho = false }: { elegirDespa
               </select>
             </label>
           </div>
-          <div className="grid gap-4 rounded-md border border-neutral-200 px-4 py-3 sm:grid-cols-4">
-            <Total etiqueta="Ingresos (periodo)" monto={lista?.suma_ingresos ?? 0} />
-            <Total etiqueta="Egresos (periodo)" monto={lista?.suma_egresos ?? 0} />
-            <Total etiqueta="Neto" monto={(lista?.suma_ingresos ?? 0) - (lista?.suma_egresos ?? 0)} />
-            <div>
-              <p className="text-xs text-neutral-500">Registros</p>
-              <p className="text-lg font-semibold">{lista?.total ?? 0}</p>
-            </div>
-          </div>
         </div>
+      </section>
 
+      {lista?.pendientes_corte.length ? (
+        <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          Falta el corte de {lista.pendientes_corte.map((persona) => persona.name).join(', ')}. La caja chica no se puede cuadrar mientras eso siga abierto.
+        </div>
+      ) : null}
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <article className="rounded-lg border border-neutral-200 p-4">
+          <p className="text-sm font-medium text-neutral-500">Saldo de caja general</p>
+          <p className="mt-2 text-2xl font-bold">{dinero(lista?.saldo_general ?? 0)}</p>
+        </article>
+        <article className="rounded-lg border border-neutral-200 p-4">
+          <p className="text-sm font-medium text-neutral-500">Caja chica por cuadrar</p>
+          <p className="mt-2 text-2xl font-bold">{dinero(lista?.saldo_chica ?? 0)}</p>
+          {puedeCrear ? (
+            <button
+              type="button"
+              className="mt-3 h-9 bg-black px-3 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-40"
+              disabled={!lista || lista.pendientes_corte.length > 0 || lista.saldo_chica <= 0}
+              onClick={cuadrar}
+            >
+              Cuadrar caja chica
+            </button>
+          ) : null}
+        </article>
+        <article className="rounded-lg border border-neutral-200 p-4">
+          <p className="flex items-center gap-2 text-sm font-medium text-neutral-500">Ingresos</p>
+          <p className="mt-2 text-2xl font-bold">{dinero(lista?.suma_ingresos ?? 0)}</p>
+        </article>
+        <article className="rounded-lg border border-neutral-200 p-4">
+          <p className="text-sm font-medium text-neutral-500">Egresos</p>
+          <p className="mt-2 text-2xl font-bold">{dinero(lista?.suma_egresos ?? 0)}</p>
+        </article>
+      </div>
+
+      <section className="overflow-hidden rounded-lg border border-neutral-200">
+        <h2 className="border-b border-neutral-200 px-4 py-3 text-lg font-semibold">Movimientos</h2>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1100px] text-left text-sm">
-            <thead className="bg-primary text-white">
+            <thead className="bg-neutral-900 text-white">
               <tr>
                 <Th etiqueta="ID" columna="id" orden={orden} onSort={setOrden} />
                 <Th etiqueta="Fecha" columna="fecha" orden={orden} onSort={setOrden} />
@@ -396,7 +398,7 @@ export function MovimientosCajaGeneral({ elegirDespacho = false }: { elegirDespa
                 <Th etiqueta="Estado" columna="estado" orden={orden} onSort={setOrden} />
                 <Th etiqueta="Usuario" columna="usuario" orden={orden} onSort={setOrden} />
                 <Th etiqueta="Descripción" columna="descripcion" orden={orden} onSort={setOrden} />
-                <th className="whitespace-nowrap px-3 py-2 font-medium">Acciones</th>
+                <th className="h-12 whitespace-nowrap px-4 text-left font-semibold">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -505,7 +507,7 @@ export function MovimientosCajaGeneral({ elegirDespacho = false }: { elegirDespa
             {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
             <div className="mt-4 flex justify-end gap-2">
               <button type="button" className="h-9 border border-neutral-300 px-3 text-sm" onClick={() => { setAbierto(false); setError(''); }}>Cancelar</button>
-              <button disabled={ocupado} className="inline-flex h-9 items-center bg-primary shadow hover:bg-primary/90 px-3 text-sm text-white disabled:opacity-40"><Save className="mr-2 h-4 w-4" />Guardar</button>
+              <button disabled={ocupado} className="inline-flex h-9 items-center bg-black hover:bg-neutral-800 px-3 text-sm text-white disabled:opacity-40"><Save className="mr-2 h-4 w-4" />Guardar</button>
             </div>
           </form>
         </div>
@@ -523,7 +525,7 @@ export function MovimientosCajaGeneral({ elegirDespacho = false }: { elegirDespa
             {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
             <div className="mt-4 flex justify-end gap-2">
               <button type="button" className="h-9 border border-neutral-300 px-3 text-sm" onClick={() => { setBaja(null); setError(''); }}>Cancelar</button>
-              <button disabled={ocupado} className="h-9 bg-primary shadow hover:bg-primary/90 px-3 text-sm text-white disabled:opacity-40">Eliminar</button>
+              <button disabled={ocupado} className="h-9 bg-black hover:bg-neutral-800 px-3 text-sm text-white disabled:opacity-40">Eliminar</button>
             </div>
           </form>
         </div>
@@ -536,15 +538,11 @@ function Tab({ activo, onClick, children }: { activo: boolean; onClick: () => vo
   return <button type="button" className={`rounded px-3 py-1.5 text-sm ${activo ? 'bg-white font-medium shadow' : 'text-neutral-600'}`} onClick={onClick}>{children}</button>;
 }
 
-function Total({ etiqueta, monto }: { etiqueta: string; monto: number }) {
-  return <div><p className="text-xs text-neutral-500">{etiqueta}</p><p className="text-lg font-semibold">{dinero(monto)}</p></div>;
-}
-
 function Th({ etiqueta, columna, orden, onSort }: { etiqueta: string; columna: string; orden: Orden; onSort: (orden: Orden) => void }) {
   const activo = orden?.columna === columna;
   const Icono = !activo ? ArrowUpDown : orden.direccion === 'asc' ? ArrowUp : ArrowDown;
   return (
-    <th className="whitespace-nowrap px-3 py-2 font-medium">
+    <th className="h-12 whitespace-nowrap px-4 text-left font-semibold">
       <button type="button" className="inline-flex items-center gap-1" onClick={() => onSort(activo && orden.direccion === 'asc' ? { columna, direccion: 'desc' } : { columna, direccion: 'asc' })}>
         {etiqueta}<Icono className="h-3.5 w-3.5" />
       </button>

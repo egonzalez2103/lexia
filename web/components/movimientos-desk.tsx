@@ -175,11 +175,16 @@ export function MovimientosDesk({ despachoId, modo = 'dia' }: { despachoId?: num
           </select>
         </label>
       ) : null}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Tarjeta titulo="Responsable" valor={pesos.format(data?.saldo.responsable ?? 0)} />
-        <Tarjeta titulo="Disponible" valor={pesos.format(data?.saldo.disponible ?? 0)} />
-        <Tarjeta titulo="Apartado en transferencias" valor={pesos.format(data?.saldo.reservado ?? 0)} />
-      </div>
+      {modo === 'inicio' ? null : (
+      <section className="rounded-lg border border-neutral-200">
+        <h2 className="border-b border-neutral-200 px-4 py-3 text-lg font-semibold">Información de caja</h2>
+        <div className="grid gap-4 p-4 sm:grid-cols-3">
+          <Tarjeta titulo="Responsable" valor={pesos.format(data?.saldo.responsable ?? 0)} />
+          <Tarjeta titulo="Disponible" valor={pesos.format(data?.saldo.disponible ?? 0)} />
+          <Tarjeta titulo="Apartado en transferencias" valor={pesos.format(data?.saldo.reservado ?? 0)} />
+        </div>
+      </section>
+      )}
       {lectura || (!mostrarOperacion && !mostrarInicio) ? null : <div className="grid gap-4 lg:grid-cols-2">
         {mostrarOperacion ? (
         <form onSubmit={enviarIngreso} className="grid gap-2 rounded-lg border border-neutral-200 p-4 shadow-sm">
@@ -194,7 +199,7 @@ export function MovimientosDesk({ despachoId, modo = 'dia' }: { despachoId?: num
               </option>
             ))}
           </select>
-          <button className="h-9 bg-primary text-sm font-medium text-white shadow hover:bg-primary/90">Registrar ingreso</button>
+          <button className="h-9 bg-black text-sm font-medium text-white hover:bg-neutral-800">Registrar ingreso</button>
         </form>
         ) : null}
         {mostrarOperacion ? (
@@ -202,7 +207,7 @@ export function MovimientosDesk({ despachoId, modo = 'dia' }: { despachoId?: num
           <h2 className="font-semibold">Egreso</h2>
           <input required className={inputClass} placeholder="Concepto" value={egreso.concepto} onChange={(event) => setEgreso({ ...egreso, concepto: event.target.value })} />
           <input required type="number" min="0.01" step="0.01" className={inputClass} placeholder="Monto" value={egreso.monto} onChange={(event) => setEgreso({ ...egreso, monto: event.target.value })} />
-          <button className="h-9 bg-primary text-sm font-medium text-white shadow hover:bg-primary/90">Registrar egreso</button>
+          <button className="h-9 bg-black text-sm font-medium text-white hover:bg-neutral-800">Registrar egreso</button>
         </form>
         ) : null}
         {mostrarOperacion ? (
@@ -218,7 +223,7 @@ export function MovimientosDesk({ despachoId, modo = 'dia' }: { despachoId?: num
           </select>
           <input required type="number" min="0.01" step="0.01" className={inputClass} placeholder="Monto" value={transferencia.monto} onChange={(event) => setTransferencia({ ...transferencia, monto: event.target.value })} />
           <p className="text-xs text-neutral-500">El dinero sigue a cargo de quien envía hasta que la otra persona acepta.</p>
-          <button className="h-9 bg-primary text-sm font-medium text-white shadow hover:bg-primary/90">Enviar</button>
+          <button className="h-9 bg-black text-sm font-medium text-white hover:bg-neutral-800">Enviar</button>
         </form>
         ) : null}
         {mostrarInicio ? (
@@ -234,7 +239,7 @@ export function MovimientosDesk({ despachoId, modo = 'dia' }: { despachoId?: num
             </select>
             <input required type="number" min="0.01" step="0.01" className={inputClass} placeholder="Monto" value={inicio.monto} onChange={(event) => setInicio({ ...inicio, monto: event.target.value })} />
             <p className="text-xs text-neutral-500">Se resta de la caja general del despacho.</p>
-            <button className="h-9 bg-primary text-sm font-medium text-white shadow hover:bg-primary/90">Entregar inicio</button>
+            <button className="h-9 bg-black text-sm font-medium text-white hover:bg-neutral-800">Entregar inicio</button>
           </form>
         ) : null}
       </div>}
@@ -249,7 +254,7 @@ export function MovimientosDesk({ despachoId, modo = 'dia' }: { despachoId?: num
               {lectura ? null : (
                 <div className="flex gap-2">
                   {data.es_admin || mov.contraparte_usuario_id === data.usuario_id ? (
-                    <button type="button" className="h-8 bg-primary px-3 text-white shadow" onClick={() => resolver(mov.id, 'aceptar')}>
+                    <button type="button" className="h-8 bg-black px-3 text-white" onClick={() => resolver(mov.id, 'aceptar')}>
                       Aceptar
                     </button>
                   ) : null}
@@ -269,15 +274,17 @@ export function MovimientosDesk({ despachoId, modo = 'dia' }: { despachoId?: num
           Inicio {pesos.format(data?.saldo.inicio ?? 0)} + ingresos {pesos.format(data?.saldo.ingresos ?? 0)} − egresos {pesos.format(data?.saldo.egresos ?? 0)} = {pesos.format(data?.saldo.responsable ?? 0)} por entregar a caja chica.
         </p>
         {lectura ? null : (
-          <button type="button" className="mt-3 h-9 bg-primary px-4 text-sm font-medium text-white shadow hover:bg-primary/90" onClick={cortar}>
+          <button type="button" className="mt-3 h-9 bg-black px-4 text-sm font-medium text-white hover:bg-neutral-800" onClick={cortar}>
             Realizar corte
           </button>
         )}
       </section>
       ) : null}
-      <div className="overflow-x-auto rounded-lg border border-neutral-200 shadow-sm">
+      <section className="overflow-hidden rounded-lg border border-neutral-200">
+        <h2 className="border-b border-neutral-200 px-4 py-3 text-lg font-semibold">{modo === 'inicio' ? 'Inicios' : modo === 'corte' ? 'Movimientos del corte' : 'Movimientos'}</h2>
+        <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] text-left text-sm">
-          <thead className="bg-primary text-white">
+          <thead className="bg-neutral-900 text-white">
             <tr>
               <th className="px-3 py-2 font-medium">Tipo</th>
               <th className="px-3 py-2 font-medium">Concepto</th>
@@ -303,16 +310,17 @@ export function MovimientosDesk({ despachoId, modo = 'dia' }: { despachoId?: num
             ) : null}
           </tbody>
         </table>
-      </div>
+        </div>
+      </section>
     </div>
   );
 }
 
 function Tarjeta({ titulo, valor }: { titulo: string; valor: string }) {
   return (
-    <article className="rounded-lg border border-neutral-200 p-4 shadow-sm">
-      <p className="text-sm font-medium text-neutral-500">{titulo}</p>
-      <p className="mt-2 text-2xl font-bold">{valor}</p>
-    </article>
+    <div>
+      <p className="text-sm text-neutral-500">{titulo}</p>
+      <p className="font-semibold">{valor}</p>
+    </div>
   );
 }
