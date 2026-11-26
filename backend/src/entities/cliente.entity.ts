@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 export type TipoCliente = 'fisica' | 'moral';
+export type GeneroCliente = 'Masculino' | 'Femenino' | 'Otro';
 
 @Entity('clientes')
 @Index(['despacho_id', 'nombre'])
@@ -34,6 +35,18 @@ export class Cliente {
 
   @Column({ type: 'varchar', length: 160, nullable: true })
   correo: string | null;
+
+  @Column({ type: 'date', nullable: true })
+  fecha_nacimiento: string | null;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  genero: GeneroCliente | null;
+
+  @Column({ type: 'varchar', length: 120, nullable: true })
+  zona_residencia: string | null;
+
+  @Column({ type: 'int', nullable: true })
+  autor_id: number | null;
 
   @Column({ type: 'text', nullable: true })
   notas: string | null;
