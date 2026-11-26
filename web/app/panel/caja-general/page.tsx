@@ -1,12 +1,12 @@
 'use client';
 
-import { MovimientosCajaGeneral } from '@/components/caja-general-desk';
+import { CajaEmpresa } from '@/components/caja-empresa';
 import { PanelShell } from '@/components/panel-shell';
 
 export default function CajaGeneralPage() {
   return (
     <PanelShell>
-      <MovimientosCajaGeneral elegirDespacho />
+      <CajaEmpresa vista="general" />
     </PanelShell>
   );
 }

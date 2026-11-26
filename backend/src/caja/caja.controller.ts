@@ -13,19 +13,19 @@ export class CajaController {
   constructor(private readonly caja: CajaService) {}
 
   @Get()
-  @AppPermiso('caja')
+  @AppPermiso(['caja', 'caja-general', 'movimientos'])
   resumen() {
     return this.caja.resumen();
   }
 
   @Post('movimientos')
-  @AppPermiso('caja', 'insertar')
+  @AppPermiso(['caja', 'caja-general', 'movimientos'], 'insertar')
   mover(@CurrentUser() user: AuthUser, @Body() dto: CreateMovimientoDto) {
     return this.caja.mover(dto, user);
   }
 
   @Post('cortes')
-  @AppPermiso('caja', 'insertar')
+  @AppPermiso(['caja', 'caja-general', 'movimientos'], 'insertar')
   cortar(@CurrentUser() user: AuthUser, @Body() dto: CreateCorteDto) {
     return this.caja.cortar(dto, user);
   }

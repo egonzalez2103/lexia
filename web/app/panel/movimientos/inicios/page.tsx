@@ -1,13 +1,12 @@
 'use client';
 
-import { DespachoPicker } from '@/components/despacho-picker';
-import { MovimientosDesk } from '@/components/movimientos-desk';
-import { PanelShell } from '@/components/panel-shell';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function IniciosCajaPage() {
-  return (
-    <PanelShell>
-      <DespachoPicker>{(despachoId) => <MovimientosDesk despachoId={despachoId} modo="inicio" />}</DespachoPicker>
-    </PanelShell>
-  );
+  const router = useRouter();
+  useEffect(() => {
+    router.replace('/panel/movimientos/cortes');
+  }, [router]);
+  return null;
 }

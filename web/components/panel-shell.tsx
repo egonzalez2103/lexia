@@ -14,7 +14,6 @@ import {
   LockKeyhole,
   LogOut,
   Menu,
-  Plus,
   ScrollText,
   Shield,
   Tags,
@@ -63,10 +62,10 @@ const NAV: NavItem[] = [
     icon: Landmark,
     children: [
       { href: '/panel/caja', label: 'Caja chica', icon: Coins, clave: 'caja' },
-      { href: '/panel/caja-general', label: 'Movimientos de caja general', icon: Landmark, clave: 'caja-general' },
+      { href: '/panel/caja-general', label: 'Caja general', icon: Landmark, clave: 'caja-general' },
       { href: '/panel/movimientos/cortes', label: 'Cortes del día', icon: Banknote, clave: 'movimientos' },
-      { href: '/panel/movimientos/inicios', label: 'Inicios de caja', icon: Plus, clave: 'movimientos' },
       { href: '/panel/movimientos', label: 'Movimientos', icon: ArrowLeftRight, clave: 'movimientos' },
+      { href: '/panel/caja-general/movimientos', label: 'Movimientos de caja general', icon: ArrowLeftRight, clave: 'caja-general' },
     ],
   },
   {

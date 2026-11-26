@@ -1,13 +1,12 @@
 'use client';
 
-import { DespachoPicker } from '@/components/despacho-picker';
-import { MovimientosDesk } from '@/components/movimientos-desk';
+import { CajaEmpresa } from '@/components/caja-empresa';
 import { PanelShell } from '@/components/panel-shell';
 
 export default function CortesDelDiaPage() {
   return (
     <PanelShell>
-      <DespachoPicker>{(despachoId) => <MovimientosDesk despachoId={despachoId} modo="corte" />}</DespachoPicker>
+      <CajaEmpresa vista="cortes" />
     </PanelShell>
   );
 }
