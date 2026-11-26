@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { AuthUser, CurrentUser, JwtAuthGuard } from '../common/auth';
 import { ComisionesService } from './comisiones.service';
-import { ComisionDto, PagarComisionDto } from './dto';
+import { ComisionDto, GenerarCorteDto, PagarComisionDto, PagarVariasDto } from './dto';
 
 @Controller('comisiones')
 @UseGuards(JwtAuthGuard)
@@ -9,8 +9,25 @@ export class ComisionesController {
   constructor(private readonly comisiones: ComisionesService) {}
 
   @Get()
-  resumen(@CurrentUser() user: AuthUser, @Query('despacho_id') despachoId?: string) {
-    return this.comisiones.resumen(user, numero(despachoId));
+  resumen(
+    @CurrentUser() user: AuthUser,
+    @Query('despacho_id') despachoId?: string,
+    @Query('desde') desde?: string,
+    @Query('hasta') hasta?: string,
+    @Query('usuario_id') usuarioId?: string,
+    @Query('estado') estado?: string,
+  ) {
+    return this.comisiones.resumen(user, numero(despachoId), desde, hasta, numero(usuarioId), estado);
+  }
+
+  @Post('cortes')
+  generar(@CurrentUser() user: AuthUser, @Body() dto: GenerarCorteDto) {
+    return this.comisiones.generar(user, dto);
+  }
+
+  @Post('pagar')
+  pagarVarias(@CurrentUser() user: AuthUser, @Body() dto: PagarVariasDto) {
+    return this.comisiones.pagarVarias(user, dto);
   }
 
   @Post()
