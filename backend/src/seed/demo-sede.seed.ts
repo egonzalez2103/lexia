@@ -1,5 +1,4 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
@@ -28,7 +27,6 @@ export class DemoSedeSeed implements OnModuleInit {
   private readonly logger = new Logger(DemoSedeSeed.name);
 
   constructor(
-    private readonly config: ConfigService,
     @InjectRepository(Despacho) private readonly despachos: Repository<Despacho>,
     @InjectRepository(User) private readonly usuarios: Repository<User>,
     @InjectRepository(CatalogoJuridico) private readonly catalogos: Repository<CatalogoJuridico>,
@@ -46,7 +44,6 @@ export class DemoSedeSeed implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    if (!demoActivo(this.config)) return;
     const existe = await this.despachos.findOne({ where: { slug: DEMO_SLUG } });
     if (existe) return;
     await this.crear();
@@ -217,13 +214,6 @@ export class DemoSedeSeed implements OnModuleInit {
       }),
     );
   }
-}
-
-function demoActivo(config: ConfigService) {
-  const flag = config.get<string>('SEED_DEMO');
-  if (flag === 'true') return true;
-  if (flag === 'false') return false;
-  return config.get<string>('NODE_ENV') !== 'production';
 }
 
 function fecha(dias: number) {
