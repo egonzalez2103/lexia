@@ -3,8 +3,10 @@ import { AuthUser, CurrentUser, JwtAuthGuard } from '../common/auth';
 import {
   CreateEscritoDto,
   CreateExpedienteDto,
+  CreateParteDto,
   CreatePromocionDto,
   CreateTerminoDto,
+  CreateVinculoDto,
   UpdateEscritoDto,
   UpdateExpedienteDto,
   UpdatePromocionDto,
@@ -85,5 +87,25 @@ export class ExpedientesController {
   @Delete('escritos/:id')
   removeEscrito(@CurrentUser() user: AuthUser, @Param('id') id: string) {
     return this.expedientes.removeEscrito(user, Number(id));
+  }
+
+  @Post('expedientes/:id/partes')
+  addParte(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() dto: CreateParteDto) {
+    return this.expedientes.addParte(user, Number(id), dto);
+  }
+
+  @Delete('partes/:id')
+  removeParte(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+    return this.expedientes.removeParte(user, Number(id));
+  }
+
+  @Post('expedientes/:id/vinculos')
+  addVinculo(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() dto: CreateVinculoDto) {
+    return this.expedientes.addVinculo(user, Number(id), dto);
+  }
+
+  @Delete('vinculos/:id')
+  removeVinculo(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+    return this.expedientes.removeVinculo(user, Number(id));
   }
 }

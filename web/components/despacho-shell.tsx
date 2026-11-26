@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeftRight, Banknote, ChevronDown, Coins, Contact, FolderOpen, History, Landmark, Plus, Tags } from 'lucide-react';
+import { ArrowLeftRight, Banknote, ChevronDown, Coins, Contact, FolderOpen, History, Landmark, LayoutDashboard, Library, Plus, Tags } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -35,8 +35,10 @@ export function DespachoShell({ children }: { children: React.ReactNode }) {
   if (!user) return null;
 
   const sueltos: Array<[string, string, typeof FolderOpen]> = [
+    ['/despacho/inicio', 'Inicio', LayoutDashboard],
     ['/despacho', 'Expedientes', FolderOpen],
     ['/despacho/clientes', 'Clientes', Contact],
+    ['/despacho/catalogos', 'Catálogos jurídicos', Library],
     ['/despacho/catalogos/movimientos', 'Tipos de movimiento', Tags],
     ['/despacho/comisiones', 'Comisiones', Coins],
   ];

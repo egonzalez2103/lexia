@@ -12,6 +12,7 @@ import { ComisionesModule } from './comisiones/comisiones.module';
 import { ColaboradoresModule } from './colaboradores/colaboradores.module';
 import { DespachosModule } from './despachos/despachos.module';
 import { ExpedientesModule } from './expedientes/expedientes.module';
+import { JuridicoModule } from './juridico/juridico.module';
 import { GruposModule } from './grupos/grupos.module';
 import { MovimientosModule } from './movimientos/movimientos.module';
 import { HealthController } from './health.controller';
@@ -47,6 +48,7 @@ import { UploadsModule } from './uploads/uploads.module';
     AuthModule,
     DespachosModule,
     ExpedientesModule,
+    JuridicoModule,
     ColaboradoresModule,
     GruposModule,
     TiposColaboradorModule,

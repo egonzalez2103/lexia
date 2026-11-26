@@ -1,4 +1,5 @@
-import { IsDateString, IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsDateString, IsIn, IsInt, IsOptional, IsString, Max, MaxLength, Min, MinLength, ValidateIf } from 'class-validator';
+import { TIPOS_VINCULO } from '../entities/vinculo-expediente.entity';
 
 export class CreateExpedienteDto {
   @IsString()
@@ -6,23 +7,178 @@ export class CreateExpedienteDto {
   @MaxLength(180)
   titulo: string;
 
+  @ValidateIf((dto: CreateExpedienteDto) => !dto.cliente_id && !dto.asunto_id)
   @IsString()
   @MinLength(2)
   @MaxLength(160)
-  cliente: string;
+  cliente?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  cliente_id?: number | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  asunto_id?: number | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  numero?: string | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1900)
+  @Max(2200)
+  anio?: number | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  autoridad_id?: number | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  sede_id?: number | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  jurisdiccion_id?: number | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  materia_id?: number | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  instancia_id?: number | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  estatus_id?: number | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  etapa?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(180)
+  juzgado?: string | null;
 
   @IsOptional()
   @IsString()
   @MaxLength(160)
-  juzgado?: string;
+  materia?: string | null;
+}
+
+export class UpdateExpedienteDto {
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  @MaxLength(180)
+  titulo?: string;
 
   @IsOptional()
   @IsString()
-  @MaxLength(80)
-  materia?: string;
+  @MaxLength(160)
+  cliente?: string | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  cliente_id?: number | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  asunto_id?: number | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  numero?: string | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1900)
+  @Max(2200)
+  anio?: number | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  autoridad_id?: number | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  sede_id?: number | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  jurisdiccion_id?: number | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  materia_id?: number | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  instancia_id?: number | null;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  estatus_id?: number | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  etapa?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(180)
+  juzgado?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(160)
+  materia?: string | null;
 }
 
-export class UpdateExpedienteDto extends CreateExpedienteDto {}
+export class CreateParteDto {
+  @IsString()
+  @MinLength(2)
+  @MaxLength(180)
+  nombre: string;
+
+  @IsString()
+  @MinLength(2)
+  @MaxLength(80)
+  caracter: string;
+}
+
+export class CreateVinculoDto {
+  @IsInt()
+  @Min(1)
+  relacionado_id: number;
+
+  @IsIn(TIPOS_VINCULO)
+  tipo: (typeof TIPOS_VINCULO)[number];
+}
 
 export class CreateTerminoDto {
   @IsString()

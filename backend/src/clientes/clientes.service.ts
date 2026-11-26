@@ -41,11 +41,16 @@ export class ClientesService {
     const slice = filtrados.slice((pagina - 1) * tamano, pagina * tamano);
     const [conteoMovimientos, expedientes, autores] = await Promise.all([
       this.conteoMovimientos(despacho.id),
-      this.expedientes.find({ where: { despacho_id: despacho.id }, select: { cliente: true } }),
+      this.expedientes.find({ where: { despacho_id: despacho.id }, select: { cliente: true, cliente_id: true } }),
       this.autoresDe(slice),
     ]);
     const conteoExpedientes = new Map<string, number>();
+    const conteoPorCliente = new Map<number, number>();
     for (const expediente of expedientes) {
+      if (expediente.cliente_id) {
+        conteoPorCliente.set(expediente.cliente_id, (conteoPorCliente.get(expediente.cliente_id) ?? 0) + 1);
+        continue;
+      }
       const clave = normalizar(expediente.cliente);
       if (!clave) continue;
       conteoExpedientes.set(clave, (conteoExpedientes.get(clave) ?? 0) + 1);
@@ -56,7 +61,7 @@ export class ClientesService {
       data: slice.map((row) =>
         this.presentar(row, {
           autor: row.autor_id ? (autores.get(row.autor_id) ?? null) : null,
-          expedientes: conteoExpedientes.get(normalizar(nombre(row))) ?? 0,
+          expedientes: conteoPorCliente.get(row.id) ?? conteoExpedientes.get(normalizar(nombre(row))) ?? 0,
           movimientos: conteoMovimientos.get(row.id) ?? 0,
         }),
       ),

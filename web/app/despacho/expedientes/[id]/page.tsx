@@ -17,16 +17,58 @@ type Promocion = {
   archivo_url: string | null;
 };
 type Escrito = { id: number; titulo: string; cuerpo: string | null; estado: string; archivo_url: string | null };
+type Parte = { id: number; nombre: string; caracter: string };
+type Vinculo = { id: number; tipo: string; relacionado_id: number; relacionado: { id: number; titulo?: string; numero: string | null; anio: number | null; folio: string | null } | null };
 type Expediente = {
   id: number;
+  folio: string | null;
   titulo: string;
   cliente: string;
-  juzgado: string | null;
-  materia: string | null;
+  cliente_id: number | null;
+  asunto_id: number | null;
+  asunto: string | null;
+  numero: string | null;
+  anio: number | null;
+  autoridad_id: number | null;
+  sede_id: number | null;
+  jurisdiccion_id: number | null;
+  materia_id: number | null;
+  instancia_id: number | null;
+  estatus_id: number | null;
+  etapa: string | null;
+  autoridad: string | null;
+  sede: string | null;
+  jurisdiccion: string | null;
+  materia_nombre: string | null;
+  instancia: string | null;
+  estatus: string | null;
   terminos: Termino[];
   promociones: Promocion[];
   escritos: Escrito[];
+  partes: Parte[];
+  vinculos: Vinculo[];
 };
+type Cliente = { id: number; nombre_completo: string };
+type Asunto = { id: number; cliente_id: number; titulo: string };
+type Catalogo = { id: number; tipo: string; nombre: string };
+type Autoridad = { id: number; nombre: string };
+type Resumen = { id: number; titulo: string; numero: string | null; anio: number | null; folio: string | null };
+
+const VINCULOS: [string, string][] = [
+  ['toca', 'Toca'],
+  ['amparo_directo', 'Amparo directo'],
+  ['amparo_indirecto', 'Amparo indirecto'],
+  ['carpeta', 'Carpeta de investigación'],
+  ['incidente', 'Incidente'],
+  ['causa', 'Causa penal'],
+  ['cuaderno', 'Cuaderno'],
+  ['ejecucion', 'Ejecución'],
+  ['otro', 'Otro vínculo'],
+];
+
+function etiquetaVinculo(tipo: string) {
+  return VINCULOS.find(([id]) => id === tipo)?.[1] ?? tipo;
+}
 
 function day(value: string) {
   return String(value).slice(0, 10);
@@ -41,14 +83,50 @@ export default function ExpedientePage() {
   const [escrito, setEscrito] = useState({ titulo: '', cuerpo: '' });
   const [archivoPromocion, setArchivoPromocion] = useState<File | null>(null);
   const [archivoEscrito, setArchivoEscrito] = useState<File | null>(null);
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [asuntos, setAsuntos] = useState<Asunto[]>([]);
+  const [catalogos, setCatalogos] = useState<Catalogo[]>([]);
+  const [autoridades, setAutoridades] = useState<Autoridad[]>([]);
+  const [hermanos, setHermanos] = useState<Resumen[]>([]);
+  const [ficha, setFicha] = useState({ titulo: '', cliente_id: '', asunto_id: '', numero: '', anio: '', materia_id: '', autoridad_id: '', jurisdiccion_id: '', instancia_id: '', estatus_id: '', sede_id: '', etapa: '' });
+  const [parte, setParte] = useState({ nombre: '', caracter: '' });
+  const [vinculo, setVinculo] = useState({ relacionado_id: '', tipo: 'toca' });
 
   async function load() {
-    setRow(await api<Expediente>(`/expedientes/${params.id}`, {}, true));
+    const expediente = await api<Expediente>(`/expedientes/${params.id}`, {}, true);
+    setRow(expediente);
+    setFicha({
+      titulo: expediente.titulo,
+      cliente_id: expediente.cliente_id ? String(expediente.cliente_id) : '',
+      asunto_id: expediente.asunto_id ? String(expediente.asunto_id) : '',
+      numero: expediente.numero ?? '',
+      anio: expediente.anio ? String(expediente.anio) : '',
+      materia_id: expediente.materia_id ? String(expediente.materia_id) : '',
+      autoridad_id: expediente.autoridad_id ? String(expediente.autoridad_id) : '',
+      jurisdiccion_id: expediente.jurisdiccion_id ? String(expediente.jurisdiccion_id) : '',
+      instancia_id: expediente.instancia_id ? String(expediente.instancia_id) : '',
+      estatus_id: expediente.estatus_id ? String(expediente.estatus_id) : '',
+      sede_id: expediente.sede_id ? String(expediente.sede_id) : '',
+      etapa: expediente.etapa ?? '',
+    });
   }
 
   useEffect(() => {
     if (!params.id) return;
     load().catch((reason) => setError(reason instanceof ApiError ? reason.message : 'No pudimos abrir el expediente.'));
+    Promise.all([
+      api<{ data: Cliente[] }>('/clientes?pageSize=200', {}, true),
+      api<Asunto[]>('/asuntos', {}, true),
+      api<Catalogo[]>('/catalogos-juridicos', {}, true),
+      api<Autoridad[]>('/autoridades', {}, true),
+      api<Resumen[]>('/expedientes', {}, true),
+    ]).then(([cartera, listaAsuntos, listaCatalogos, listaAutoridades, lista]) => {
+      setClientes(cartera.data);
+      setAsuntos(listaAsuntos);
+      setCatalogos(listaCatalogos);
+      setAutoridades(listaAutoridades);
+      setHermanos(lista);
+    }).catch(() => undefined);
   }, [params.id]);
 
   async function run(action: () => Promise<void>) {
@@ -113,6 +191,56 @@ export default function ExpedientePage() {
     });
   }
 
+  async function guardarFicha(event: FormEvent) {
+    event.preventDefault();
+    const catalogo = (actual: string, previo?: number | null) => {
+      if (!actual && !previo) return undefined;
+      return actual ? Number(actual) : null;
+    };
+    await run(async () => {
+      await api(`/expedientes/${params.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          titulo: ficha.titulo,
+          cliente_id: ficha.cliente_id ? Number(ficha.cliente_id) : undefined,
+          asunto_id: ficha.asunto_id ? Number(ficha.asunto_id) : null,
+          numero: ficha.numero || null,
+          anio: ficha.anio ? Number(ficha.anio) : null,
+          materia_id: catalogo(ficha.materia_id, row?.materia_id),
+          autoridad_id: catalogo(ficha.autoridad_id, row?.autoridad_id),
+          jurisdiccion_id: catalogo(ficha.jurisdiccion_id, row?.jurisdiccion_id),
+          instancia_id: catalogo(ficha.instancia_id, row?.instancia_id),
+          estatus_id: catalogo(ficha.estatus_id, row?.estatus_id),
+          sede_id: catalogo(ficha.sede_id, row?.sede_id),
+          etapa: ficha.etapa || null,
+        }),
+      }, true);
+    });
+  }
+
+  async function addParte(event: FormEvent) {
+    event.preventDefault();
+    await run(async () => {
+      await api(`/expedientes/${params.id}/partes`, { method: 'POST', body: JSON.stringify(parte) }, true);
+      setParte({ nombre: '', caracter: '' });
+    });
+  }
+
+  async function addVinculo(event: FormEvent) {
+    event.preventDefault();
+    await run(async () => {
+      await api(`/expedientes/${params.id}/vinculos`, {
+        method: 'POST',
+        body: JSON.stringify({ relacionado_id: Number(vinculo.relacionado_id), tipo: vinculo.tipo }),
+      }, true);
+      setVinculo({ relacionado_id: '', tipo: 'toca' });
+    });
+  }
+
+  function opciones(tipo: string) {
+    return catalogos.filter((item) => item.tipo === tipo);
+  }
+
   return (
     <DespachoShell>
       <p className="mb-3 text-sm">
@@ -124,13 +252,99 @@ export default function ExpedientePage() {
         <h1 className="text-3xl font-semibold">{row?.titulo ?? 'Expediente'}</h1>
         {row ? (
           <p className="mt-2 text-neutral-600">
-            {row.cliente}
-            {row.materia ? ` · ${row.materia}` : ''}
-            {row.juzgado ? ` · ${row.juzgado}` : ''}
+            {[row.numero && row.anio ? `${row.numero}/${row.anio}` : row.folio, row.cliente, row.asunto, row.materia_nombre, row.autoridad, row.estatus].filter(Boolean).join(' · ')}
           </p>
         ) : null}
       </header>
       <Notice error={error} />
+
+      <section className="mb-8">
+        <h2 className="mb-3 font-medium">Ficha</h2>
+        {row && !row.cliente_id ? <p className="mb-3 text-sm text-neutral-600">Quedó anotado como {row.cliente}. Elige el cliente de la cartera para ligarlo.</p> : null}
+        <form onSubmit={guardarFicha} className="grid gap-3 rounded-lg border border-neutral-200 p-4 md:grid-cols-2">
+          <input required minLength={2} className={inputClass} placeholder="Título" value={ficha.titulo} onChange={(event) => setFicha({ ...ficha, titulo: event.target.value })} />
+          <select className={inputClass} value={ficha.cliente_id} onChange={(event) => setFicha({ ...ficha, cliente_id: event.target.value, asunto_id: '' })}>
+            <option value="">Cliente</option>
+            {clientes.map((item) => <option key={item.id} value={item.id}>{item.nombre_completo}</option>)}
+          </select>
+          <select className={inputClass} value={ficha.asunto_id} onChange={(event) => setFicha({ ...ficha, asunto_id: event.target.value })}>
+            <option value="">Sin asunto</option>
+            {asuntos.filter((item) => String(item.cliente_id) === ficha.cliente_id).map((item) => <option key={item.id} value={item.id}>{item.titulo}</option>)}
+          </select>
+          <input className={inputClass} placeholder="Número" value={ficha.numero} onChange={(event) => setFicha({ ...ficha, numero: event.target.value })} />
+          <input className={inputClass} type="number" placeholder="Año" value={ficha.anio} onChange={(event) => setFicha({ ...ficha, anio: event.target.value })} />
+          <input className={inputClass} placeholder="Etapa" value={ficha.etapa} onChange={(event) => setFicha({ ...ficha, etapa: event.target.value })} />
+          <select className={inputClass} value={ficha.materia_id} onChange={(event) => setFicha({ ...ficha, materia_id: event.target.value })}>
+            <option value="">Materia</option>
+            {opciones('materia').map((item) => <option key={item.id} value={item.id}>{item.nombre}</option>)}
+          </select>
+          <select className={inputClass} value={ficha.autoridad_id} onChange={(event) => setFicha({ ...ficha, autoridad_id: event.target.value })}>
+            <option value="">Autoridad</option>
+            {autoridades.map((item) => <option key={item.id} value={item.id}>{item.nombre}</option>)}
+          </select>
+          <select className={inputClass} value={ficha.jurisdiccion_id} onChange={(event) => setFicha({ ...ficha, jurisdiccion_id: event.target.value })}>
+            <option value="">Jurisdicción</option>
+            {opciones('jurisdiccion').map((item) => <option key={item.id} value={item.id}>{item.nombre}</option>)}
+          </select>
+          <select className={inputClass} value={ficha.instancia_id} onChange={(event) => setFicha({ ...ficha, instancia_id: event.target.value })}>
+            <option value="">Instancia</option>
+            {opciones('instancia').map((item) => <option key={item.id} value={item.id}>{item.nombre}</option>)}
+          </select>
+          <select className={inputClass} value={ficha.sede_id} onChange={(event) => setFicha({ ...ficha, sede_id: event.target.value })}>
+            <option value="">Sede</option>
+            {opciones('sede').map((item) => <option key={item.id} value={item.id}>{item.nombre}</option>)}
+          </select>
+          <select className={inputClass} value={ficha.estatus_id} onChange={(event) => setFicha({ ...ficha, estatus_id: event.target.value })}>
+            <option value="">Estatus</option>
+            {opciones('estatus').map((item) => <option key={item.id} value={item.id}>{item.nombre}</option>)}
+          </select>
+          <button className="h-9 bg-black text-sm font-medium text-white md:col-span-2">Guardar ficha</button>
+        </form>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="mb-3 font-medium">Partes</h2>
+        <form onSubmit={addParte} className="mb-3 grid gap-3 border border-neutral-200 p-4 md:grid-cols-2">
+          <input required minLength={2} className={inputClass} placeholder="Nombre" value={parte.nombre} onChange={(event) => setParte({ ...parte, nombre: event.target.value })} />
+          <input required minLength={2} className={inputClass} placeholder="Carácter, por ejemplo actor o demandado" value={parte.caracter} onChange={(event) => setParte({ ...parte, caracter: event.target.value })} />
+          <button className="h-9 bg-black text-sm font-medium text-white">Agregar parte</button>
+        </form>
+        <ul className="divide-y divide-neutral-200 border border-neutral-200">
+          {row?.partes.map((item) => (
+            <li key={item.id} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+              <p><span className="font-medium">{item.nombre}</span> · {item.caracter}</p>
+              <button type="button" className="underline" onClick={() => run(() => api(`/partes/${item.id}`, { method: 'DELETE' }, true).then(() => undefined))}>Quitar</button>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="mb-3 font-medium">Procesos vinculados</h2>
+        <form onSubmit={addVinculo} className="mb-3 grid gap-3 border border-neutral-200 p-4 md:grid-cols-2">
+          <select required className={inputClass} value={vinculo.relacionado_id} onChange={(event) => setVinculo({ ...vinculo, relacionado_id: event.target.value })}>
+            <option value="">Expediente</option>
+            {hermanos.filter((item) => String(item.id) !== params.id).map((item) => (
+              <option key={item.id} value={item.id}>{item.numero && item.anio ? `${item.numero}/${item.anio} · ` : ''}{item.titulo}</option>
+            ))}
+          </select>
+          <select className={inputClass} value={vinculo.tipo} onChange={(event) => setVinculo({ ...vinculo, tipo: event.target.value })}>
+            {VINCULOS.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
+          </select>
+          <button className="h-9 bg-black text-sm font-medium text-white">Vincular</button>
+        </form>
+        <ul className="divide-y divide-neutral-200 border border-neutral-200">
+          {row?.vinculos.map((item) => (
+            <li key={item.id} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+              <p>
+                <span className="font-medium">{etiquetaVinculo(item.tipo)}</span>
+                {item.relacionado ? ` · ${item.relacionado.titulo}` : ''}
+              </p>
+              <button type="button" className="underline" onClick={() => run(() => api(`/vinculos/${item.id}`, { method: 'DELETE' }, true).then(() => undefined))}>Quitar</button>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section className="mb-8">
         <h2 className="mb-3 font-medium">Términos</h2>
