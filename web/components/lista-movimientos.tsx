@@ -46,7 +46,8 @@ export function ListaMovimientos({ despachoId }: { despachoId?: number }) {
   const pathname = usePathname();
   const enDespacho = pathname.startsWith('/despacho');
   const catalogo = enDespacho ? '/despacho/catalogos/movimientos' : '/panel/catalogos/movimientos';
-  const caja = enDespacho ? '/despacho/movimientos/caja' : '/panel/movimientos/caja';
+  const inicios = enDespacho ? '/despacho/movimientos/inicios' : '/panel/movimientos/inicios';
+  const cortes = enDespacho ? '/despacho/movimientos/cortes' : '/panel/movimientos/cortes';
   const [lista, setLista] = useState<Lista | null>(null);
   const [error, setError] = useState('');
   const [q, setQ] = useState('');
@@ -177,9 +178,14 @@ export function ListaMovimientos({ despachoId }: { despachoId?: number }) {
 
   return (
     <div>
+      <header className="mb-6">
+        <h1 className="text-3xl font-bold">Movimientos</h1>
+        <p className="mt-2 text-neutral-500">Ingresos y egresos del despacho, de operación y fuera de operación.</p>
+      </header>
       <div className="mb-6 flex gap-4 text-sm">
-        <Link href={catalogo} className="font-medium underline decoration-neutral-300 underline-offset-2">Catálogo de tipos</Link>
-        <Link href={caja} className="font-medium underline decoration-neutral-300 underline-offset-2">Caja del día</Link>
+        <Link href={catalogo} className="font-medium text-primary underline decoration-primary/30 underline-offset-2">Catálogo de tipos</Link>
+        <Link href={inicios} className="font-medium text-primary underline decoration-primary/30 underline-offset-2">Inicios de caja</Link>
+        <Link href={cortes} className="font-medium text-primary underline decoration-primary/30 underline-offset-2">Cortes del día</Link>
       </div>
       <Notice error={error} />
       {admin ? (
@@ -241,14 +247,11 @@ export function ListaMovimientos({ despachoId }: { despachoId?: number }) {
               <span>Descripción</span>
               <textarea required minLength={3} className="min-h-24 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" placeholder="Describe el motivo del movimiento..." value={form.descripcion} onChange={(event) => setForm({ ...form, descripcion: event.target.value })} />
             </label>
-            <button className="inline-flex h-10 items-center bg-black px-4 text-sm font-medium text-white"><Save className="mr-2 h-4 w-4" />Guardar</button>
+            <button className="inline-flex h-10 items-center bg-primary shadow hover:bg-primary/90 px-4 text-sm font-medium text-white"><Save className="mr-2 h-4 w-4" />Guardar</button>
           </div>
         </form>
       ) : null}
 
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <h2 className="text-2xl font-bold">Lista de movimientos</h2>
-      </div>
       <div className="mb-4 flex w-fit gap-1 rounded-md bg-neutral-100 p-1">
         <Tab activo={ambito === 'operacion'} onClick={() => { setAmbito('operacion'); setPage(1); }}>Operación ({lista?.total_operacion ?? 0})</Tab>
         <Tab activo={ambito === 'fuera'} onClick={() => { setAmbito('fuera'); setPage(1); }}>Fuera de operación ({lista?.total_fuera ?? 0})</Tab>
@@ -258,7 +261,7 @@ export function ListaMovimientos({ despachoId }: { despachoId?: number }) {
         <div className="flex flex-wrap items-end gap-3">
           <label className="space-y-1 text-xs text-neutral-500">Desde<input type="date" className={campo} value={desde} onChange={(event) => setDesde(event.target.value)} /></label>
           <label className="space-y-1 text-xs text-neutral-500">Hasta<input type="date" className={campo} value={hasta} onChange={(event) => setHasta(event.target.value)} /></label>
-          <button type="button" className="h-9 bg-black px-3 text-sm text-white disabled:opacity-40" disabled={!desde || !hasta || (desde === desdeOk && hasta === hastaOk)} onClick={aplicarFechas}>Aplicar fechas</button>
+          <button type="button" className="h-9 bg-primary shadow hover:bg-primary/90 px-3 text-sm text-white disabled:opacity-40" disabled={!desde || !hasta || (desde === desdeOk && hasta === hastaOk)} onClick={aplicarFechas}>Aplicar fechas</button>
           <select className="h-9 rounded-md border border-neutral-300 px-2 text-sm" value={tipo} onChange={(event) => { setTipo(event.target.value); setPage(1); }}>
             <option value="">Todos</option>
             <option value="ingreso">Ingreso</option>
@@ -287,7 +290,7 @@ export function ListaMovimientos({ despachoId }: { despachoId?: number }) {
       </div>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[960px] text-left text-sm">
-          <thead className="bg-neutral-900 text-white">
+          <thead className="bg-primary text-white">
             <tr>
               <Th etiqueta="ID" columna="id" orden={orden} onSort={setOrden} />
               <Th etiqueta="Fecha" columna="fecha" orden={orden} onSort={setOrden} />
@@ -344,7 +347,7 @@ export function ListaMovimientos({ despachoId }: { despachoId?: number }) {
             </label>
             <div className="mt-4 flex justify-end gap-2">
               <button type="button" className="h-9 border border-neutral-300 px-3 text-sm" onClick={() => setBaja(null)}>Cancelar</button>
-              <button className="h-9 bg-black px-3 text-sm text-white">Eliminar</button>
+              <button className="h-9 bg-primary shadow hover:bg-primary/90 px-3 text-sm text-white">Eliminar</button>
             </div>
           </form>
         </div>

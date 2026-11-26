@@ -12,7 +12,9 @@ import {
   Landmark,
   Library,
   LockKeyhole,
+  LogOut,
   Menu,
+  Plus,
   ScrollText,
   Shield,
   Tags,
@@ -60,10 +62,11 @@ const NAV: NavItem[] = [
     label: 'Control de cajas',
     icon: Landmark,
     children: [
-      { href: '/panel/movimientos', label: 'Movimientos', icon: ArrowLeftRight, clave: 'movimientos' },
-      { href: '/panel/movimientos/caja', label: 'Caja del día', icon: Banknote, clave: 'movimientos' },
+      { href: '/panel/caja', label: 'Caja chica', icon: Coins, clave: 'caja' },
       { href: '/panel/caja-general', label: 'Movimientos de caja general', icon: Landmark, clave: 'caja-general' },
-      { href: '/panel/caja', label: 'De la plataforma', icon: Landmark, clave: 'caja' },
+      { href: '/panel/movimientos/cortes', label: 'Cortes del día', icon: Banknote, clave: 'movimientos' },
+      { href: '/panel/movimientos/inicios', label: 'Inicios de caja', icon: Plus, clave: 'movimientos' },
+      { href: '/panel/movimientos', label: 'Movimientos', icon: ArrowLeftRight, clave: 'movimientos' },
     ],
   },
   {
@@ -94,6 +97,15 @@ function isCurrent(pathname: string, href: string, siblings: string[] = []) {
   const coincide = pathname === href || pathname.startsWith(`${href}/`);
   if (!coincide) return false;
   return !siblings.some((otro) => otro !== href && otro.length > href.length && (pathname === otro || pathname.startsWith(`${otro}/`)));
+}
+
+function navClass(active: boolean) {
+  return `flex w-full rounded-lg px-3 py-2 text-left text-sm font-medium ${active ? 'bg-secondary text-white shadow' : 'text-neutral-800 hover:bg-neutral-100'}`;
+}
+
+function iniciales(nombre: string) {
+  const partes = nombre.trim().split(/\s+/).filter(Boolean);
+  return ((partes[0]?.[0] ?? '') + (partes[1]?.[0] ?? '')).toUpperCase() || 'LX';
 }
 
 function navFor(user: SessionUser): NavItem[] {
@@ -175,17 +187,13 @@ export function PanelShell({ children }: { children: React.ReactNode }) {
               <img src="/lexia-logo.png" alt="Lexia" className="h-14 w-auto" />
             </Link>
           </div>
-          <nav className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+          <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">
             {navFor(user).map((item) => {
               if (!isGroup(item)) {
                 const Icon = item.icon;
                 const active = isCurrent(pathname, item.href);
                 return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`mb-1 flex w-full items-center rounded-md px-3 py-2 text-sm ${active ? 'font-semibold text-black' : 'text-neutral-700 hover:bg-neutral-100'}`}
-                  >
+                  <Link key={item.href} href={item.href} className={`${navClass(active)} mb-4 items-center`}>
                     <Icon className="mr-2 h-4 w-4 shrink-0" />
                     {item.label}
                   </Link>
@@ -193,39 +201,27 @@ export function PanelShell({ children }: { children: React.ReactNode }) {
               }
               const Icon = item.icon;
               const open = openGroup === item.label;
-              const active = item.children.some((child) => isCurrent(pathname, child.href));
+              const siblings = item.children.map((hermano) => hermano.href);
+              const active = item.children.some((child) => isCurrent(pathname, child.href, siblings));
               return (
-                <div key={item.label} className="mb-1">
-                  <button
-                    type="button"
-                    className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-sm ${active ? 'font-semibold text-black' : 'text-neutral-700 hover:bg-neutral-100'}`}
-                    aria-expanded={open}
-                    onClick={() => setOpenGroup(open ? null : item.label)}
-                  >
-                    <span className="flex min-w-0 items-center">
+                <div key={item.label} className="mb-4">
+                  <button type="button" className={`${navClass(active)} items-center justify-between`} aria-expanded={open} onClick={() => setOpenGroup(open ? null : item.label)}>
+                    <span className="flex min-w-0 flex-1 items-center">
                       <Icon className="mr-2 h-4 w-4 shrink-0" />
                       <span className="truncate">{item.label}</span>
                     </span>
                     <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
                   </button>
-                  <div
-                    inert={!open}
-                    aria-hidden={!open}
-                    className={`grid transition-[grid-template-rows] duration-200 ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
-                  >
+                  <div inert={!open} aria-hidden={!open} className={`grid transition-[grid-template-rows] duration-200 ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
                     <div className="overflow-hidden">
-                      <div className="ml-4 mt-1 space-y-1">
+                      <div className="ml-4 mt-2 space-y-2">
                         {item.children.map((child) => {
                           const ChildIcon = child.icon;
-                          const childActive = isCurrent(pathname, child.href, item.children.map((hermano) => hermano.href));
+                          const childActive = isCurrent(pathname, child.href, siblings);
                           return (
-                            <Link
-                              key={child.href}
-                              href={child.href}
-                              className={`flex w-full items-center rounded-md px-3 py-2 text-sm ${childActive ? 'font-semibold text-black' : 'text-neutral-700 hover:bg-neutral-100'}`}
-                            >
-                              <ChildIcon className="mr-2 h-3.5 w-3.5 shrink-0" />
-                              {child.label}
+                            <Link key={child.href} href={child.href} className={`${navClass(childActive)} h-auto min-h-9 items-start whitespace-normal py-1.5`}>
+                              <ChildIcon className="mr-2 mt-0.5 h-3 w-3 shrink-0" />
+                              <span className="min-w-0 flex-1 whitespace-normal break-words leading-snug">{child.label}</span>
                             </Link>
                           );
                         })}
@@ -237,16 +233,22 @@ export function PanelShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
           <div className="shrink-0 border-t border-neutral-200 px-4 py-4">
-            <p className="truncate text-sm font-medium">{user.name}</p>
-            <p className="truncate text-xs text-neutral-500">{ROLES[user.role]}</p>
+            <div className="flex items-center gap-2">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-sm font-medium">{iniciales(user.name)}</span>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium leading-5">{user.name}</p>
+                <p className="truncate text-xs leading-4 text-neutral-500">{ROLES[user.role]}</p>
+              </div>
+            </div>
             <button
               type="button"
-              className="mt-3 text-sm font-semibold"
+              className="mt-3 flex items-center text-sm font-medium text-neutral-700 hover:text-black"
               onClick={() => {
                 clearSession();
                 router.replace('/login');
               }}
             >
+              <LogOut className="mr-2 h-4 w-4" />
               Cerrar sesión
             </button>
           </div>

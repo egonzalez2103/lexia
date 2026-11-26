@@ -31,7 +31,7 @@ type Resumen = {
 const pesos = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
 const TIPOS: Record<string, string> = { inicio: 'Inicio', ingreso: 'Ingreso', egreso: 'Egreso', transferencia: 'Transferencia' };
 
-export function MovimientosDesk({ despachoId }: { despachoId?: number }) {
+export function MovimientosDesk({ despachoId, modo = 'dia' }: { despachoId?: number; modo?: 'dia' | 'inicio' | 'corte' }) {
   const [data, setData] = useState<Resumen | null>(null);
   const usuarioRef = useRef<number | undefined>(undefined);
   const [error, setError] = useState('');
@@ -144,9 +144,22 @@ export function MovimientosDesk({ despachoId }: { despachoId?: number }) {
   }
 
   const otros = (data?.usuarios ?? []).filter((persona) => persona.activo !== false && persona.id !== data?.usuario_id);
+  const encabezado = {
+    dia: ['Caja del día', 'Ingresos, egresos, transferencias y corte de tu caja.'],
+    inicio: ['Inicios de caja', 'El efectivo sale de la caja general y queda a cargo de la persona.'],
+    corte: ['Cortes del día', 'El corte entrega el efectivo disponible a caja chica.'],
+  }[modo];
+  const filas = (data?.movimientos ?? []).filter((mov) => modo !== 'inicio' || mov.tipo === 'inicio');
+  const mostrarOperacion = modo === 'dia';
+  const mostrarInicio = (modo === 'dia' || modo === 'inicio') && Boolean(data?.es_admin);
+  const mostrarCorte = modo === 'dia' || modo === 'corte';
 
   return (
-    <div>
+    <div className="space-y-6">
+      <header>
+        <h1 className="text-3xl font-bold">{encabezado[0]}</h1>
+        <p className="mt-2 text-neutral-500">{encabezado[1]}</p>
+      </header>
       <Notice error={error} />
       {data?.es_admin ? (
         <label className="mb-4 block max-w-sm text-sm">
@@ -162,13 +175,14 @@ export function MovimientosDesk({ despachoId }: { despachoId?: number }) {
           </select>
         </label>
       ) : null}
-      <div className="mb-6 grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-3">
         <Tarjeta titulo="Responsable" valor={pesos.format(data?.saldo.responsable ?? 0)} />
         <Tarjeta titulo="Disponible" valor={pesos.format(data?.saldo.disponible ?? 0)} />
         <Tarjeta titulo="Apartado en transferencias" valor={pesos.format(data?.saldo.reservado ?? 0)} />
       </div>
-      {lectura ? null : <div className="mb-6 grid gap-4 lg:grid-cols-2">
-        <form onSubmit={enviarIngreso} className="grid gap-2 border border-neutral-200 p-4">
+      {lectura || (!mostrarOperacion && !mostrarInicio) ? null : <div className="grid gap-4 lg:grid-cols-2">
+        {mostrarOperacion ? (
+        <form onSubmit={enviarIngreso} className="grid gap-2 rounded-lg border border-neutral-200 p-4 shadow-sm">
           <h2 className="font-semibold">Ingreso</h2>
           <input required className={inputClass} placeholder="Concepto" value={ingreso.concepto} onChange={(event) => setIngreso({ ...ingreso, concepto: event.target.value })} />
           <input required type="number" min="0.01" step="0.01" className={inputClass} placeholder="Monto" value={ingreso.monto} onChange={(event) => setIngreso({ ...ingreso, monto: event.target.value })} />
@@ -180,15 +194,19 @@ export function MovimientosDesk({ despachoId }: { despachoId?: number }) {
               </option>
             ))}
           </select>
-          <button className="h-9 bg-black text-sm font-medium text-white">Registrar ingreso</button>
+          <button className="h-9 bg-primary text-sm font-medium text-white shadow hover:bg-primary/90">Registrar ingreso</button>
         </form>
-        <form onSubmit={enviarEgreso} className="grid gap-2 border border-neutral-200 p-4">
+        ) : null}
+        {mostrarOperacion ? (
+        <form onSubmit={enviarEgreso} className="grid gap-2 rounded-lg border border-neutral-200 p-4 shadow-sm">
           <h2 className="font-semibold">Egreso</h2>
           <input required className={inputClass} placeholder="Concepto" value={egreso.concepto} onChange={(event) => setEgreso({ ...egreso, concepto: event.target.value })} />
           <input required type="number" min="0.01" step="0.01" className={inputClass} placeholder="Monto" value={egreso.monto} onChange={(event) => setEgreso({ ...egreso, monto: event.target.value })} />
-          <button className="h-9 bg-black text-sm font-medium text-white">Registrar egreso</button>
+          <button className="h-9 bg-primary text-sm font-medium text-white shadow hover:bg-primary/90">Registrar egreso</button>
         </form>
-        <form onSubmit={enviarTransferencia} className="grid gap-2 border border-neutral-200 p-4">
+        ) : null}
+        {mostrarOperacion ? (
+        <form onSubmit={enviarTransferencia} className="grid gap-2 rounded-lg border border-neutral-200 p-4 shadow-sm">
           <h2 className="font-semibold">Transferencia</h2>
           <select required className={inputClass} value={transferencia.contraparte_usuario_id} onChange={(event) => setTransferencia({ ...transferencia, contraparte_usuario_id: event.target.value })}>
             <option value="">Para</option>
@@ -200,14 +218,15 @@ export function MovimientosDesk({ despachoId }: { despachoId?: number }) {
           </select>
           <input required type="number" min="0.01" step="0.01" className={inputClass} placeholder="Monto" value={transferencia.monto} onChange={(event) => setTransferencia({ ...transferencia, monto: event.target.value })} />
           <p className="text-xs text-neutral-500">El dinero sigue a cargo de quien envía hasta que la otra persona acepta.</p>
-          <button className="h-9 bg-black text-sm font-medium text-white">Enviar</button>
+          <button className="h-9 bg-primary text-sm font-medium text-white shadow hover:bg-primary/90">Enviar</button>
         </form>
-        {data?.es_admin ? (
-          <form onSubmit={enviarInicio} className="grid gap-2 border border-neutral-200 p-4">
+        ) : null}
+        {mostrarInicio ? (
+          <form onSubmit={enviarInicio} className="grid gap-2 rounded-lg border border-neutral-200 p-4 shadow-sm">
             <h2 className="font-semibold">Inicio de caja</h2>
             <select required className={inputClass} value={inicio.usuario_id} onChange={(event) => setInicio({ ...inicio, usuario_id: event.target.value })}>
               <option value="">Usuario</option>
-              {data.usuarios.filter((persona) => persona.activo !== false).map((persona) => (
+              {(data?.usuarios ?? []).filter((persona) => persona.activo !== false).map((persona) => (
                 <option key={persona.id} value={persona.id}>
                   {persona.name}
                 </option>
@@ -215,12 +234,12 @@ export function MovimientosDesk({ despachoId }: { despachoId?: number }) {
             </select>
             <input required type="number" min="0.01" step="0.01" className={inputClass} placeholder="Monto" value={inicio.monto} onChange={(event) => setInicio({ ...inicio, monto: event.target.value })} />
             <p className="text-xs text-neutral-500">Se resta de la caja general del despacho.</p>
-            <button className="h-9 bg-black text-sm font-medium text-white">Entregar inicio</button>
+            <button className="h-9 bg-primary text-sm font-medium text-white shadow hover:bg-primary/90">Entregar inicio</button>
           </form>
         ) : null}
       </div>}
       {data?.pendientes.length ? (
-        <section className="mb-6 border border-neutral-200">
+        <section className="rounded-lg border border-neutral-200 shadow-sm">
           <h2 className="border-b border-neutral-200 px-4 py-2 font-semibold">Transferencias pendientes</h2>
           {data.pendientes.map((mov) => (
             <div key={mov.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
@@ -230,7 +249,7 @@ export function MovimientosDesk({ despachoId }: { despachoId?: number }) {
               {lectura ? null : (
                 <div className="flex gap-2">
                   {data.es_admin || mov.contraparte_usuario_id === data.usuario_id ? (
-                    <button type="button" className="h-8 bg-black px-3 text-white" onClick={() => resolver(mov.id, 'aceptar')}>
+                    <button type="button" className="h-8 bg-primary px-3 text-white shadow" onClick={() => resolver(mov.id, 'aceptar')}>
                       Aceptar
                     </button>
                   ) : null}
@@ -243,20 +262,22 @@ export function MovimientosDesk({ despachoId }: { despachoId?: number }) {
           ))}
         </section>
       ) : null}
-      <section className="mb-6 border border-neutral-200 p-4">
+      {mostrarCorte ? (
+      <section className="rounded-lg border border-neutral-200 p-4 shadow-sm">
         <h2 className="font-semibold">Corte</h2>
         <p className="mt-1 text-sm text-neutral-600">
           Inicio {pesos.format(data?.saldo.inicio ?? 0)} + ingresos {pesos.format(data?.saldo.ingresos ?? 0)} − egresos {pesos.format(data?.saldo.egresos ?? 0)} = {pesos.format(data?.saldo.responsable ?? 0)} por entregar a caja chica.
         </p>
         {lectura ? null : (
-          <button type="button" className="mt-3 h-9 bg-black px-4 text-sm font-medium text-white" onClick={cortar}>
+          <button type="button" className="mt-3 h-9 bg-primary px-4 text-sm font-medium text-white shadow hover:bg-primary/90" onClick={cortar}>
             Realizar corte
           </button>
         )}
       </section>
-      <div className="overflow-x-auto border border-neutral-200">
+      ) : null}
+      <div className="overflow-x-auto rounded-lg border border-neutral-200 shadow-sm">
         <table className="w-full min-w-[640px] text-left text-sm">
-          <thead className="border-b border-neutral-200 text-xs uppercase tracking-wide text-neutral-500">
+          <thead className="bg-primary text-white">
             <tr>
               <th className="px-3 py-2 font-medium">Tipo</th>
               <th className="px-3 py-2 font-medium">Concepto</th>
@@ -265,7 +286,7 @@ export function MovimientosDesk({ despachoId }: { despachoId?: number }) {
             </tr>
           </thead>
           <tbody>
-            {(data?.movimientos ?? []).map((mov) => (
+            {filas.map((mov) => (
               <tr key={mov.id} className="border-b border-neutral-100 last:border-0">
                 <td className="px-3 py-2">{TIPOS[mov.tipo] ?? mov.tipo}</td>
                 <td className="px-3 py-2">{mov.concepto}</td>
@@ -273,7 +294,7 @@ export function MovimientosDesk({ despachoId }: { despachoId?: number }) {
                 <td className="px-3 py-2">{pesos.format(mov.monto)}</td>
               </tr>
             ))}
-            {data && data.movimientos.length === 0 ? (
+            {data && filas.length === 0 ? (
               <tr>
                 <td className="px-3 py-4 text-neutral-500" colSpan={4}>
                   No hay movimientos abiertos. El corte deja la caja en ceros.
@@ -289,9 +310,9 @@ export function MovimientosDesk({ despachoId }: { despachoId?: number }) {
 
 function Tarjeta({ titulo, valor }: { titulo: string; valor: string }) {
   return (
-    <article className="border border-neutral-200 p-4">
-      <p className="text-xs uppercase tracking-wide text-neutral-500">{titulo}</p>
-      <p className="mt-2 text-2xl font-semibold">{valor}</p>
+    <article className="rounded-lg border border-neutral-200 p-4 shadow-sm">
+      <p className="text-sm font-medium text-neutral-500">{titulo}</p>
+      <p className="mt-2 text-2xl font-bold">{valor}</p>
     </article>
   );
 }

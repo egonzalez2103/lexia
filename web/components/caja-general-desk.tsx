@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { AlertCircle, ArrowDown, ArrowUp, ArrowUpDown, Plus, Save, Search, Trash2, X } from 'lucide-react';
+import { AlertCircle, ArrowDown, ArrowUp, ArrowUpDown, Landmark, Plus, Save, Search, Trash2, X } from 'lucide-react';
 import { ApiError, api } from '@/lib/api';
 import { Notice } from '@/components/panel-shell';
 import { esPersonalSoloLectura } from '@/lib/session';
@@ -254,8 +254,11 @@ export function MovimientosCajaGeneral({ elegirDespacho = false }: { elegirDespa
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Movimientos de caja general</h1>
-          <p className="mt-2 text-neutral-500">
+          <h1 className="flex items-center gap-2 text-3xl font-bold">
+            <Landmark className="h-8 w-8 shrink-0" />
+            Movimientos de caja general
+          </h1>
+          <p className="mt-1 text-neutral-500">
             {elegirDespacho
               ? 'Registra ingresos y egresos de caja general en cualquier despacho.'
               : 'Registra ingresos y egresos de caja general de tu despacho.'}
@@ -279,7 +282,7 @@ export function MovimientosCajaGeneral({ elegirDespacho = false }: { elegirDespa
           ) : null}
           <button
             type="button"
-            className="inline-flex h-9 items-center justify-center gap-2 bg-black px-3 text-sm font-medium text-white disabled:opacity-40"
+            className="inline-flex h-9 items-center justify-center gap-2 bg-primary shadow hover:bg-primary/90 px-3 text-sm font-medium text-white disabled:opacity-40"
             disabled={!listo || !puedeCrear}
             title={listo ? undefined : 'Selecciona un despacho antes de registrar movimientos'}
             onClick={() => { setForm(vacio); setAbierto(true); setError(''); }}
@@ -298,7 +301,7 @@ export function MovimientosCajaGeneral({ elegirDespacho = false }: { elegirDespa
       ) : null}
       {abierto || baja ? null : <Notice error={error} />}
 
-      <section className="rounded-lg border border-neutral-200 p-4 sm:p-6">
+      <section className="rounded-lg border border-neutral-200 p-4 shadow-sm sm:p-6">
         <h2 className="text-lg font-semibold">Movimientos de caja general</h2>
         <p className="mt-1 text-sm text-neutral-500">
           Ingresos, egresos e inicios de caja (efectivo que sale al entregar fondo). El rango inicial cubre desde el último cuadre hasta la fecha de esta pantalla.
@@ -313,7 +316,7 @@ export function MovimientosCajaGeneral({ elegirDespacho = false }: { elegirDespa
             {puedeCrear ? (
               <button
                 type="button"
-                className="h-9 bg-black px-3 text-sm font-medium text-white disabled:opacity-40"
+                className="h-9 bg-primary shadow hover:bg-primary/90 px-3 text-sm font-medium text-white disabled:opacity-40"
                 disabled={lista.pendientes_corte.length > 0 || lista.saldo_chica <= 0}
                 onClick={cuadrar}
               >
@@ -339,7 +342,7 @@ export function MovimientosCajaGeneral({ elegirDespacho = false }: { elegirDespa
           <div className="flex flex-wrap items-end gap-3">
             <label className="space-y-1 text-xs text-neutral-500">Desde<input type="date" className={campo} value={desde} onChange={(event) => setDesde(event.target.value)} /></label>
             <label className="space-y-1 text-xs text-neutral-500">Hasta<input type="date" className={campo} value={hasta} onChange={(event) => setHasta(event.target.value)} /></label>
-            <button type="button" className="h-9 bg-black px-3 text-sm text-white disabled:opacity-40" disabled={!rangoCambiado} onClick={aplicarFechas}>Aplicar fechas</button>
+            <button type="button" className="h-9 bg-primary shadow hover:bg-primary/90 px-3 text-sm text-white disabled:opacity-40" disabled={!rangoCambiado} onClick={aplicarFechas}>Aplicar fechas</button>
             <button type="button" className="inline-flex h-9 items-center border border-neutral-300 px-3 text-sm" onClick={limpiar}><X className="mr-1 h-4 w-4" />Limpiar</button>
             <select className="h-9 rounded-md border border-neutral-300 px-2 text-sm" value={tipo} onChange={(event) => { setTipo(event.target.value); setPage(1); }}>
               <option value="">Todos</option>
@@ -380,7 +383,7 @@ export function MovimientosCajaGeneral({ elegirDespacho = false }: { elegirDespa
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1100px] text-left text-sm">
-            <thead className="bg-neutral-900 text-white">
+            <thead className="bg-primary text-white">
               <tr>
                 <Th etiqueta="ID" columna="id" orden={orden} onSort={setOrden} />
                 <Th etiqueta="Fecha" columna="fecha" orden={orden} onSort={setOrden} />
@@ -502,7 +505,7 @@ export function MovimientosCajaGeneral({ elegirDespacho = false }: { elegirDespa
             {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
             <div className="mt-4 flex justify-end gap-2">
               <button type="button" className="h-9 border border-neutral-300 px-3 text-sm" onClick={() => { setAbierto(false); setError(''); }}>Cancelar</button>
-              <button disabled={ocupado} className="inline-flex h-9 items-center bg-black px-3 text-sm text-white disabled:opacity-40"><Save className="mr-2 h-4 w-4" />Guardar</button>
+              <button disabled={ocupado} className="inline-flex h-9 items-center bg-primary shadow hover:bg-primary/90 px-3 text-sm text-white disabled:opacity-40"><Save className="mr-2 h-4 w-4" />Guardar</button>
             </div>
           </form>
         </div>
@@ -520,7 +523,7 @@ export function MovimientosCajaGeneral({ elegirDespacho = false }: { elegirDespa
             {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
             <div className="mt-4 flex justify-end gap-2">
               <button type="button" className="h-9 border border-neutral-300 px-3 text-sm" onClick={() => { setBaja(null); setError(''); }}>Cancelar</button>
-              <button disabled={ocupado} className="h-9 bg-black px-3 text-sm text-white disabled:opacity-40">Eliminar</button>
+              <button disabled={ocupado} className="h-9 bg-primary shadow hover:bg-primary/90 px-3 text-sm text-white disabled:opacity-40">Eliminar</button>
             </div>
           </form>
         </div>
