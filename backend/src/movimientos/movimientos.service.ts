@@ -49,6 +49,7 @@ export class MovimientosService {
       fecha: hoy(),
       es_admin: admin,
       usuario_id: foco.id,
+      ultimo_corte_id: cortes.find((corte) => corte.usuario_id === foco.id)?.id ?? null,
       saldo,
       usuarios: visibles.map((persona) => {
         const verSaldo = admin || persona.id === user.id;
@@ -241,6 +242,34 @@ export class MovimientosService {
     return this.resumen(user, despacho.id, foco.id);
   }
 
+  async detalleCorte(user: AuthUser, id: number) {
+    const corte = await this.cortes.findOne({ where: { id } });
+    if (!corte) throw new NotFoundException('No encontramos ese corte.');
+    await this.alcance.despachoDe(user, 'movimientos', corte.despacho_id);
+    if (!this.alcance.esAdmin(user) && corte.usuario_id !== user.id) {
+      throw new ForbiddenException('Ese corte es de otra persona.');
+    }
+    const [persona, movs, previos] = await Promise.all([
+      this.users.findOne({ where: { id: corte.usuario_id } }),
+      this.movimientos.find({ where: { despacho_id: corte.despacho_id }, order: { id: 'ASC' } }),
+      this.cortes.find({ where: { despacho_id: corte.despacho_id, usuario_id: corte.usuario_id }, order: { id: 'DESC' } }),
+    ]);
+    const previo = previos.find((row) => row.id < corte.id);
+    const desde = previo?.hasta_movimiento_id ?? 0;
+    return {
+      id: corte.id,
+      fecha: ymd(corte.fecha),
+      usuario: persona?.name ?? '',
+      inicio: money(corte.inicio),
+      ingresos: money(corte.ingresos),
+      egresos: money(corte.egresos),
+      total: money(corte.total),
+      movimientos: movs
+        .filter((mov) => mov.id > desde && mov.id <= corte.hasta_movimiento_id && mov.estado === 'aplicado' && involucra(mov, corte.usuario_id))
+        .map((mov) => ({ id: mov.id, tipo: mov.tipo, concepto: mov.concepto, monto: money(mov.monto), fecha: ymd(mov.fecha) })),
+    };
+  }
+
   private async mover(user: AuthUser, dto: MovimientoDto, tipo: 'ingreso' | 'egreso') {
     const despacho = await this.alcance.despachoDe(user, 'movimientos', dto.despacho_id, 'insertar');
     const monto = this.monto(dto.monto);
@@ -397,4 +426,9 @@ export class MovimientosService {
 
 function nombreCliente(cliente: Cliente) {
   return [cliente.nombre, cliente.paterno, cliente.materno].filter(Boolean).join(' ');
+}
+
+function ymd(value: unknown) {
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  return String(value ?? '').slice(0, 10);
 }

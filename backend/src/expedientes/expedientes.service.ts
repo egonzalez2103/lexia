@@ -5,6 +5,7 @@ import { BitacoraService } from '../bitacora/bitacora.service';
 import { altaDe, bajaDe, diffCampos } from '../bitacora/cambios';
 import { AuthUser } from '../common/auth';
 import { UserRole } from '../common/enums';
+import { esDireccion, exigirFuncion } from '../common/funcion';
 import { Asunto } from '../entities/asunto.entity';
 import { Autoridad } from '../entities/autoridad.entity';
 import { TipoCambio } from '../entities/bitacora-edicion.entity';
@@ -51,7 +52,8 @@ export class ExpedientesService {
       where: scope ? { despacho_id: scope } : {},
       order: { updated_at: 'DESC' },
     });
-    return this.adornar(rows);
+    const visibles = !esDireccion(user) && user.sede_id ? rows.filter((row) => row.sede_id == null || row.sede_id === user.sede_id) : rows;
+    return this.adornar(visibles);
   }
 
   async one(user: AuthUser, id: number) {
@@ -92,6 +94,7 @@ export class ExpedientesService {
   }
 
   async create(user: AuthUser, dto: CreateExpedienteDto) {
+    exigirFuncion(user, 'escribir');
     const despachoId = this.scope(user);
     if (!despachoId) throw new ForbiddenException('Elige el despacho desde su propio acceso.');
     const row = this.expedientes.create({
@@ -109,6 +112,7 @@ export class ExpedientesService {
   }
 
   async update(user: AuthUser, id: number, dto: UpdateExpedienteDto) {
+    exigirFuncion(user, 'escribir');
     const expediente = await this.owned(user, id);
     const antes = fichaExpediente(expediente);
     if (dto.titulo) expediente.titulo = dto.titulo.trim();
@@ -120,6 +124,7 @@ export class ExpedientesService {
   }
 
   async remove(user: AuthUser, id: number) {
+    exigirFuncion(user, 'escribir');
     const expediente = await this.owned(user, id);
     await this.anotar(user, 'baja', 'Expediente', expediente.id, expediente.titulo, expediente.despacho_id, fichaExpediente(expediente), null);
     await this.terminos.delete({ expediente_id: id });
@@ -133,6 +138,7 @@ export class ExpedientesService {
   }
 
   async addTermino(user: AuthUser, id: number, dto: CreateTerminoDto) {
+    exigirFuncion(user, 'plazos');
     const expediente = await this.owned(user, id);
     const row = await this.terminos.save(
       this.terminos.create({
@@ -171,6 +177,7 @@ export class ExpedientesService {
   }
 
   async addPromocion(user: AuthUser, id: number, dto: CreatePromocionDto) {
+    exigirFuncion(user, 'escribir');
     const expediente = await this.owned(user, id);
     const row = await this.promociones.save(
       this.promociones.create({
@@ -211,6 +218,7 @@ export class ExpedientesService {
   }
 
   async addEscrito(user: AuthUser, id: number, dto: CreateEscritoDto) {
+    exigirFuncion(user, 'escribir');
     const expediente = await this.owned(user, id);
     const row = await this.escritos.save(
       this.escritos.create({
@@ -249,6 +257,7 @@ export class ExpedientesService {
   }
 
   async addParte(user: AuthUser, id: number, dto: CreateParteDto) {
+    exigirFuncion(user, 'escribir');
     const expediente = await this.owned(user, id);
     const row = await this.partes.save(
       this.partes.create({
@@ -274,6 +283,7 @@ export class ExpedientesService {
   }
 
   async addVinculo(user: AuthUser, id: number, dto: CreateVinculoDto) {
+    exigirFuncion(user, 'escribir');
     const expediente = await this.owned(user, id);
     if (dto.relacionado_id === id) throw new BadRequestException('Un expediente no se vincula consigo mismo.');
     const relacionado = await this.expedientes.findOne({ where: { id: dto.relacionado_id, despacho_id: expediente.despacho_id } });
@@ -416,6 +426,9 @@ export class ExpedientesService {
     if (!expediente) throw new NotFoundException('No encontramos ese expediente.');
     if (user.role !== UserRole.DUENO && expediente.despacho_id !== user.despacho_id) {
       throw new ForbiddenException('Ese expediente es de otro despacho.');
+    }
+    if (!esDireccion(user) && user.sede_id && expediente.sede_id && expediente.sede_id !== user.sede_id) {
+      throw new ForbiddenException('Ese expediente es de otra sede.');
     }
     return expediente;
   }

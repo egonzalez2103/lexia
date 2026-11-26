@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { FormEvent, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { DespachoShell } from '@/components/despacho-shell';
+import { ExpedienteOperacion } from '@/components/expediente-operacion';
 import { Notice, inputClass } from '@/components/panel-shell';
 import { ApiError, api, fileHref, uploadArchivo } from '@/lib/api';
 
@@ -257,6 +258,7 @@ export default function ExpedientePage() {
         ) : null}
       </header>
       <Notice error={error} />
+      {params.id ? <ExpedienteOperacion expedienteId={Number(params.id)} /> : null}
 
       <section className="mb-8">
         <h2 className="mb-3 font-medium">Ficha</h2>

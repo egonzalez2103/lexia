@@ -17,6 +17,7 @@ import { GruposModule } from './grupos/grupos.module';
 import { MovimientosModule } from './movimientos/movimientos.module';
 import { HealthController } from './health.controller';
 import { NominasModule } from './nominas/nominas.module';
+import { OperacionModule } from './operacion/operacion.module';
 import { RegistrosMovimientoModule } from './registros-movimiento/registros-movimiento.module';
 import { ReportesModule } from './reportes/reportes.module';
 import { SeedModule } from './seed/seed.module';
@@ -60,6 +61,7 @@ import { UploadsModule } from './uploads/uploads.module';
     ClientesModule,
     ComisionesModule,
     NominasModule,
+    OperacionModule,
     ReportesModule,
     UploadsModule,
     SeedModule,

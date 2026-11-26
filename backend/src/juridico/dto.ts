@@ -52,4 +52,14 @@ export class AsuntoDto {
   @IsString()
   @MaxLength(2000)
   notas?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(240)
+  esquema?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(14)
+  monto_acordado?: string;
 }

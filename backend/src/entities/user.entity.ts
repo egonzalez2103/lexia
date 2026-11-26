@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { FuncionDespacho } from '../common/auth';
 import { UserRole } from '../common/enums';
 
 @Entity('usuarios')
@@ -35,6 +36,12 @@ export class User {
 
   @Column({ type: 'int', nullable: true })
   grupo_id: number | null;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  funcion: FuncionDespacho | null;
+
+  @Column({ type: 'int', nullable: true })
+  sede_id: number | null;
 
   @CreateDateColumn()
   created_at: Date;

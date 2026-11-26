@@ -137,6 +137,8 @@ export class JuridicoService {
         cliente_id: cliente.id,
         titulo: dto.titulo.trim(),
         notas: dto.notas?.trim() || null,
+        esquema: dto.esquema?.trim() || null,
+        monto_acordado: dto.monto_acordado?.trim() || null,
       }),
     );
     await this.anotar(user, 'alta', 'Asunto', saved.id, saved.titulo, despachoId, null, { Título: saved.titulo, Cliente: nombreCliente(cliente) });
@@ -151,6 +153,8 @@ export class JuridicoService {
     row.cliente_id = cliente.id;
     row.titulo = dto.titulo.trim();
     row.notas = dto.notas?.trim() || null;
+    if (dto.esquema !== undefined) row.esquema = dto.esquema.trim() || null;
+    if (dto.monto_acordado !== undefined) row.monto_acordado = dto.monto_acordado.trim() || null;
     const saved = await this.asuntos.save(row);
     await this.anotar(user, 'edicion', 'Asunto', saved.id, saved.titulo, saved.despacho_id, antes, { Título: saved.titulo, Notas: saved.notas });
     return saved;

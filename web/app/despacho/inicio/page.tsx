@@ -18,6 +18,8 @@ type Quieto = {
   origen: 'actuacion' | 'apertura';
 };
 type Tablero = { terminos: Termino[]; actuaciones: Actuacion[]; inactividad: Quieto[] };
+type Audiencia = { id: number; titulo: string; fecha: string; hora: string | null; expediente_id: number; expediente: string };
+type CargoSemana = { id: number; concepto: string; vence_el: string | null; saldo: number; cliente: string; asunto: string };
 
 function hoy() {
   const now = new Date();
@@ -36,17 +38,27 @@ function plazo(vence: string) {
 
 export default function InicioDespachoPage() {
   const [data, setData] = useState<Tablero | null>(null);
+  const [audiencias, setAudiencias] = useState<Audiencia[]>([]);
+  const [cobranza, setCobranza] = useState<CargoSemana[]>([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    api<Tablero>('/tablero', {}, true)
-      .then(setData)
+    Promise.all([
+      api<Tablero>('/tablero', {}, true),
+      api<Audiencia[]>('/agenda', {}, true),
+      api<{ semana: CargoSemana[] }>('/cartera', {}, true),
+    ])
+      .then(([tablero, agenda, cartera]) => {
+        setData(tablero);
+        setAudiencias(agenda);
+        setCobranza(cartera.semana);
+      })
       .catch((reason) => setError(reason instanceof ApiError ? reason.message : 'No pudimos abrir el tablero.'));
   }, []);
 
   return (
     <DespachoShell>
-      <PageTitle title="Inicio" text="Términos por vencer, últimas actuaciones y asuntos sin movimiento. El tiempo sin actuación informa; la caducidad se revisa aparte." />
+      <PageTitle title="Inicio" text="Términos, audiencias, cobranza y días sin actuación. El tiempo sin movimiento informa; la caducidad se revisa aparte." />
       <Notice error={error} />
       <div className="grid gap-6">
         <section className="rounded-lg border border-neutral-200">
@@ -64,6 +76,32 @@ export default function InicioDespachoPage() {
               </li>
             ))}
             {data && data.terminos.length === 0 ? <li className="px-4 py-4 text-sm text-neutral-500">No hay términos pendientes en los próximos 14 días.</li> : null}
+          </ul>
+        </section>
+
+        <section className="rounded-lg border border-neutral-200">
+          <h2 className="border-b border-neutral-200 px-4 py-3 text-lg font-semibold">Audiencias de la semana</h2>
+          <ul className="divide-y divide-neutral-100">
+            {audiencias.map((row) => (
+              <li key={row.id} className="px-4 py-3 text-sm">
+                <Link href={`/despacho/expedientes/${row.expediente_id}`} className="font-medium hover:underline">{row.titulo}</Link>
+                <p className="text-neutral-600">{row.fecha}{row.hora ? ` · ${row.hora}` : ''} · {row.expediente}</p>
+              </li>
+            ))}
+            {audiencias.length === 0 ? <li className="px-4 py-4 text-sm text-neutral-500">No hay audiencias en los próximos siete días.</li> : null}
+          </ul>
+        </section>
+
+        <section className="rounded-lg border border-neutral-200">
+          <h2 className="border-b border-neutral-200 px-4 py-3 text-lg font-semibold">Cobranza de la semana</h2>
+          <ul className="divide-y divide-neutral-100">
+            {cobranza.map((row) => (
+              <li key={row.id} className="px-4 py-3 text-sm">
+                <p className="font-medium">{row.concepto}</p>
+                <p className="text-neutral-600">{row.cliente} · {row.asunto}{row.vence_el ? ` · vence ${row.vence_el}` : ''} · saldo {row.saldo.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</p>
+              </li>
+            ))}
+            {cobranza.length === 0 ? <li className="px-4 py-4 text-sm text-neutral-500">No hay cargos por vencer.</li> : null}
           </ul>
         </section>
 

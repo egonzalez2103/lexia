@@ -11,6 +11,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { Reflector } from '@nestjs/core';
 import { UserRole } from './enums';
 
+export type FuncionDespacho = 'abogado' | 'pasante' | 'caja' | 'consulta';
+
 export type AuthUser = {
   id: number;
   name: string;
@@ -18,6 +20,8 @@ export type AuthUser = {
   role: UserRole;
   despacho_id: number | null;
   grupo_id: number | null;
+  funcion: FuncionDespacho | null;
+  sede_id: number | null;
 };
 
 export const ROLES_KEY = 'roles';

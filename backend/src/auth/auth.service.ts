@@ -23,6 +23,8 @@ export type PublicUser = {
   role: UserRole;
   despacho_id: number | null;
   despacho_slug: string | null;
+  funcion: 'abogado' | 'pasante' | 'caja' | 'consulta' | null;
+  sede_id: number | null;
   permisos: PermisoUsuario[];
 };
 
@@ -76,6 +78,8 @@ export class AuthService {
       role: user.role,
       despacho_id: user.despacho_id,
       despacho_slug: despacho?.slug ?? null,
+      funcion: user.funcion,
+      sede_id: user.sede_id,
       permisos: await this.grupos.permisosDe(user),
     };
   }

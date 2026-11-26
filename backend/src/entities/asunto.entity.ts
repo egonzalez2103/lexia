@@ -18,6 +18,12 @@ export class Asunto {
   @Column({ type: 'text', nullable: true })
   notas: string | null;
 
+  @Column({ type: 'decimal', precision: 12, scale: 2, nullable: true })
+  monto_acordado: string | null;
+
+  @Column({ type: 'varchar', length: 240, nullable: true })
+  esquema: string | null;
+
   @CreateDateColumn()
   created_at: Date;
 

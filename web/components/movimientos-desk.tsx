@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { ApiError, api } from '@/lib/api';
 import { Notice, inputClass } from '@/components/panel-shell';
@@ -21,6 +22,7 @@ type Movimiento = {
 type Resumen = {
   es_admin: boolean;
   usuario_id: number;
+  ultimo_corte_id: number | null;
   saldo: { responsable: number; disponible: number; reservado: number; inicio: number; ingresos: number; egresos: number };
   usuarios: Usuario[];
   clientes: Cliente[];
@@ -274,9 +276,12 @@ export function MovimientosDesk({ despachoId, modo = 'dia' }: { despachoId?: num
           Inicio {pesos.format(data?.saldo.inicio ?? 0)} + ingresos {pesos.format(data?.saldo.ingresos ?? 0)} − egresos {pesos.format(data?.saldo.egresos ?? 0)} = {pesos.format(data?.saldo.responsable ?? 0)} por entregar a caja chica.
         </p>
         {lectura ? null : (
-          <button type="button" className="mt-3 h-9 bg-black px-4 text-sm font-medium text-white hover:bg-neutral-800" onClick={cortar}>
-            Realizar corte
-          </button>
+          <div className="mt-3 flex gap-3">
+            <button type="button" className="h-9 bg-black px-4 text-sm font-medium text-white hover:bg-neutral-800" onClick={cortar}>
+              Realizar corte
+            </button>
+            {data?.ultimo_corte_id ? <Link href={`/despacho/movimientos/cortes/${data.ultimo_corte_id}`} className="inline-flex h-9 items-center px-4 text-sm underline">Imprimir corte</Link> : null}
+          </div>
         )}
       </section>
       ) : null}

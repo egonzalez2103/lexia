@@ -47,6 +47,11 @@ export class MovimientosController {
   cortar(@CurrentUser() user: AuthUser, @Body() dto: CorteDto) {
     return this.movimientos.cortar(user, dto);
   }
+
+  @Get('cortes/:id')
+  detalleCorte(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+    return this.movimientos.detalleCorte(user, Number(id));
+  }
 }
 
 function numero(value?: string) {

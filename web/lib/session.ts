@@ -12,6 +12,8 @@ export type SessionUser = {
   role: 'DUENO' | 'PERSONAL' | 'ADMIN_DESPACHO' | 'MIEMBRO_DESPACHO';
   despacho_id: number | null;
   despacho_slug: string | null;
+  funcion?: 'abogado' | 'pasante' | 'caja' | 'consulta' | null;
+  sede_id?: number | null;
   permisos?: Permiso[];
 };
 

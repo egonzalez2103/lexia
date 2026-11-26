@@ -1,11 +1,11 @@
 'use client';
 
-import { ArrowLeftRight, Banknote, ChevronDown, Coins, Contact, FolderOpen, History, Landmark, LayoutDashboard, Library, Plus, Tags } from 'lucide-react';
+import { ArrowLeftRight, Banknote, Calendar, ChevronDown, Coins, Contact, FolderOpen, History, Landmark, LayoutDashboard, Library, Plus, Tags, Users, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { ApiError, api } from '@/lib/api';
-import { clearSession, homeFor, readSession, type SessionUser } from '@/lib/session';
+import { clearSession, homeFor, readSession, saveSession, type SessionUser } from '@/lib/session';
 
 export function DespachoShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -24,7 +24,11 @@ export function DespachoShell({ children }: { children: React.ReactNode }) {
       return;
     }
     setUser(session.user);
-    api<SessionUser>('/auth/me', {}, true).catch((reason) => {
+    api<SessionUser>('/auth/me', {}, true).then((fresh) => {
+      const actual = readSession();
+      if (actual) saveSession({ ...actual, user: fresh });
+      setUser(fresh);
+    }).catch((reason) => {
       if (reason instanceof ApiError) {
         clearSession();
         router.replace('/login');
@@ -36,13 +40,19 @@ export function DespachoShell({ children }: { children: React.ReactNode }) {
 
   const sueltos: Array<[string, string, typeof FolderOpen]> = [
     ['/despacho/inicio', 'Inicio', LayoutDashboard],
+    ['/despacho/agenda', 'Agenda', Calendar],
     ['/despacho', 'Expedientes', FolderOpen],
     ['/despacho/clientes', 'Clientes', Contact],
+    ['/despacho/honorarios', 'Honorarios', Wallet],
+    ['/despacho/depositos', 'Depósitos', Landmark],
     ['/despacho/catalogos', 'Catálogos jurídicos', Library],
     ['/despacho/catalogos/movimientos', 'Tipos de movimiento', Tags],
     ['/despacho/comisiones', 'Comisiones', Coins],
   ];
-  if (user.role === 'ADMIN_DESPACHO') sueltos.push(['/despacho/registro-ediciones', 'Registro de ediciones', History]);
+  if (user.role === 'ADMIN_DESPACHO') {
+    sueltos.push(['/despacho/equipo', 'Equipo', Users]);
+    sueltos.push(['/despacho/registro-ediciones', 'Registro de ediciones', History]);
+  }
   const cajas: Array<[string, string, typeof Landmark]> = [
     ['/despacho/movimientos/cortes', 'Cortes del día', Banknote],
     ['/despacho/movimientos/inicios', 'Inicios de caja', Plus],
