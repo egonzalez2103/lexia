@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { FormEvent, useEffect, useState } from 'react';
+import { AparienciaForm } from '@/components/apariencia-form';
 import { Notice, PageTitle, PanelShell, inputClass } from '@/components/panel-shell';
 import { ApiError, api } from '@/lib/api';
 
@@ -13,6 +14,9 @@ type Despacho = {
   phone: string | null;
   address: string | null;
   blurb: string | null;
+  logo_url: string | null;
+  portada_url: string | null;
+  paleta: string;
   is_active: boolean;
   sitio: string;
   usuarios: Usuario[];
@@ -46,6 +50,8 @@ export default function DespachosPage() {
   const [member, setMember] = useState({ despacho_id: '', name: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [aparienciaId, setAparienciaId] = useState('');
+  const elegido = rows.find((row) => String(row.id) === aparienciaId);
 
   async function load() {
     setRows(await api<Despacho[]>('/despachos', {}, true));
@@ -168,6 +174,29 @@ export default function DespachosPage() {
           </tbody>
         </table>
       </div>
+      {rows.length > 0 ? (
+        <section className="mt-8 border border-neutral-200 p-4">
+          <h2 className="font-medium">Personalizar la ficha</h2>
+          <p className="mt-1 text-sm text-neutral-500">Logo, portada y colores de la página pública del despacho.</p>
+          <select className={`${inputClass} mt-4 max-w-sm`} value={aparienciaId} onChange={(event) => setAparienciaId(event.target.value)}>
+            <option value="">Elige el despacho</option>
+            {rows.map((row) => (
+              <option key={row.id} value={row.id}>{row.name}</option>
+            ))}
+          </select>
+          {elegido ? (
+            <div className="mt-6">
+              <AparienciaForm
+                despacho={elegido}
+                onSave={async (body) => {
+                  const guardado = await api<Despacho>(`/despachos/${elegido.id}`, { method: 'PATCH', body: JSON.stringify(body) }, true);
+                  setRows((actual) => actual.map((row) => (row.id === guardado.id ? guardado : row)));
+                }}
+              />
+            </div>
+          ) : null}
+        </section>
+      ) : null}
       {rows.length > 0 ? (
         <form onSubmit={addMember} className="mt-8 grid gap-3 border border-neutral-200 p-4 md:grid-cols-2">
           <h2 className="font-medium md:col-span-2">Agregar abogado a un despacho</h2>

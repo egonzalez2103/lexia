@@ -4,7 +4,7 @@ import { UserRole } from '../common/enums';
 import { AppPermiso } from '../common/permiso';
 import { PermisosGuard } from '../common/permisos.guard';
 import { DespachosService } from './despachos.service';
-import { CreateDespachoDto, CreateMiembroDto, UpdateDespachoDto } from './dto';
+import { AparienciaDto, CreateDespachoDto, CreateMiembroDto, UpdateDespachoDto } from './dto';
 
 @Controller('despachos')
 export class DespachosController {
@@ -13,6 +13,20 @@ export class DespachosController {
   @Get('publico/:slug')
   publico(@Param('slug') slug: string) {
     return this.despachos.publicBySlug(slug);
+  }
+
+  @Get('mio')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN_DESPACHO)
+  mio(@CurrentUser() user: AuthUser) {
+    return this.despachos.mio(user);
+  }
+
+  @Patch('mio')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN_DESPACHO)
+  apariencia(@CurrentUser() user: AuthUser, @Body() dto: AparienciaDto) {
+    return this.despachos.apariencia(user, dto);
   }
 
   @Get()

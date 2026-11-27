@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
@@ -9,7 +9,8 @@ import { UserRole } from '../common/enums';
 import { normalizeSlug } from '../common/slug';
 import { Despacho } from '../entities/despacho.entity';
 import { User } from '../entities/user.entity';
-import { CreateDespachoDto, CreateMiembroDto, UpdateDespachoDto } from './dto';
+import { AparienciaDto, CreateDespachoDto, CreateMiembroDto, UpdateDespachoDto } from './dto';
+import { nombrePaleta } from './paletas';
 
 @Injectable()
 export class DespachosService {
@@ -34,6 +35,9 @@ export class DespachosService {
       phone: despacho.phone,
       address: despacho.address,
       blurb: despacho.blurb,
+      logo_url: despacho.logo_url,
+      portada_url: despacho.portada_url,
+      paleta: despacho.paleta || 'negro',
     };
   }
 
@@ -92,6 +96,7 @@ export class DespachosService {
     if (dto.address !== undefined) despacho.address = dto.address.trim() || null;
     if (dto.blurb !== undefined) despacho.blurb = dto.blurb.trim() || null;
     if (dto.is_active !== undefined) despacho.is_active = dto.is_active;
+    this.aplicarApariencia(despacho, dto);
     await this.despachos.save(despacho);
     const campos = diffCampos(antes, fichaDespacho(despacho));
     if (campos) {
@@ -103,6 +108,30 @@ export class DespachosService {
         tipo: 'edicion',
         campos,
         actor,
+      });
+    }
+    return this.present(despacho);
+  }
+
+  async mio(user: AuthUser) {
+    return this.present(await this.find(this.propio(user)));
+  }
+
+  async apariencia(user: AuthUser, dto: AparienciaDto) {
+    const despacho = await this.find(this.propio(user));
+    const antes = fichaDespacho(despacho);
+    this.aplicarApariencia(despacho, dto);
+    await this.despachos.save(despacho);
+    const campos = diffCampos(antes, fichaDespacho(despacho));
+    if (campos) {
+      await this.bitacora.registrar({
+        despachoId: despacho.id,
+        entidad: 'Despacho',
+        entidadId: despacho.id,
+        referencia: despacho.name,
+        tipo: 'edicion',
+        campos,
+        actor: user,
       });
     }
     return this.present(despacho);
@@ -134,6 +163,17 @@ export class DespachosService {
     return { id: user.id, name: user.name, email: user.email, role: user.role };
   }
 
+  private propio(user: AuthUser) {
+    if (!user.despacho_id) throw new ForbiddenException('Esta cuenta no pertenece a un despacho.');
+    return user.despacho_id;
+  }
+
+  private aplicarApariencia(despacho: Despacho, dto: AparienciaDto) {
+    if (dto.logo_url !== undefined) despacho.logo_url = imagenDe(dto.logo_url);
+    if (dto.portada_url !== undefined) despacho.portada_url = imagenDe(dto.portada_url);
+    if (dto.paleta !== undefined) despacho.paleta = dto.paleta;
+  }
+
   private async find(id: number) {
     const despacho = await this.despachos.findOne({ where: { id } });
     if (!despacho) throw new NotFoundException('No encontramos ese despacho.');
@@ -152,6 +192,9 @@ export class DespachosService {
       phone: despacho.phone,
       address: despacho.address,
       blurb: despacho.blurb,
+      logo_url: despacho.logo_url,
+      portada_url: despacho.portada_url,
+      paleta: despacho.paleta || 'negro',
       is_active: despacho.is_active,
       created_at: despacho.created_at,
       sitio: `/sitio/${despacho.slug}`,
@@ -165,12 +208,24 @@ export class DespachosService {
   }
 }
 
+function imagenDe(value?: string | null) {
+  if (value == null || value.trim() === '') return null;
+  const url = value.trim();
+  if (!/^\/uploads\/[a-zA-Z0-9._-]+\.(png|jpe?g|webp)$/.test(url)) {
+    throw new BadRequestException('Usa una imagen PNG, JPG o WebP.');
+  }
+  return url;
+}
+
 function fichaDespacho(despacho: Despacho) {
   return {
     Nombre: despacho.name,
     Teléfono: despacho.phone,
     Domicilio: despacho.address,
     Descripción: despacho.blurb,
+    Logo: despacho.logo_url ? 'Sí' : 'No',
+    Portada: despacho.portada_url ? 'Sí' : 'No',
+    Colores: nombrePaleta(despacho.paleta),
     Activo: despacho.is_active ? 'Sí' : 'No',
   };
 }

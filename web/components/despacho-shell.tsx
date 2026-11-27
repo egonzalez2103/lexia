@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeftRight, Banknote, Calendar, ChevronDown, Coins, Contact, FolderOpen, History, Landmark, LayoutDashboard, Library, Plus, Tags, Users, Wallet } from 'lucide-react';
+import { ArrowLeftRight, Banknote, Calendar, ChevronDown, Coins, Contact, FolderOpen, History, Landmark, LayoutDashboard, Library, Palette, Plus, Tags, Users, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -50,6 +50,7 @@ export function DespachoShell({ children }: { children: React.ReactNode }) {
     ['/despacho/comisiones', 'Comisiones', Coins],
   ];
   if (user.role === 'ADMIN_DESPACHO') {
+    sueltos.push(['/despacho/apariencia', 'Apariencia', Palette]);
     sueltos.push(['/despacho/equipo', 'Equipo', Users]);
     sueltos.push(['/despacho/registro-ediciones', 'Registro de ediciones', History]);
   }

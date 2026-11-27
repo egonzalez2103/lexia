@@ -26,6 +26,15 @@ export class Despacho {
   @Column({ type: 'text', nullable: true })
   blurb: string | null;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  logo_url: string | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  portada_url: string | null;
+
+  @Column({ length: 20, default: 'negro' })
+  paleta: string;
+
   @Column({ default: true })
   is_active: boolean;
 
